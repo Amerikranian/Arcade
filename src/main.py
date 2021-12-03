@@ -6,10 +6,16 @@ import pygame
 import games
 from menu import Menu
 from screen_manager import ScreenManager
+from game_data_manager import GameDataManager
+
+GAME_INFO_PATH = "data/games/info.json"
 
 
 def main():
     c = pygame.time.Clock()
+    gdm = GameDataManager()
+    gdm.load(GAME_INFO_PATH)
+    print(gdm.game_data["games"])
     sm = ScreenManager()
     s = Menu(
         {

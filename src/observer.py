@@ -3,7 +3,7 @@ class Observer:
 
     def fetch_dynamic_attr(self, attr):
         """A wrapper testing existence of the given events and using the fallback on failure"""
-        attr_name = f"handle_{event_type}_event"
+        attr_name = f"handle_{event_type}"
         if hasattr(self, attr_name):
             return getattr(self, attr_name)
         return self.handle_event

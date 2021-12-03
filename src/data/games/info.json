@@ -1,0 +1,28 @@
+{
+    "defaults": {
+        "difficulties": [
+            0,
+            1,
+            2
+        ],
+        "difficulty_labels": {
+            "0": "Easy",
+            "1": "Medium",
+            "2": "Hard"
+        },
+        "game_variations": [
+            "Standard"
+        ],
+        "game_docstring": "No documentation provided."
+    },
+    "games": {
+        "Hangman": {
+            "game_docstring": "",
+            "game_variations": [],
+            "difficulties": [],
+            "difficulty_labels": {
+                "2": "Super hard"
+            }
+        }
+    }
+}
