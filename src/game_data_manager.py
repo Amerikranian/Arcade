@@ -9,10 +9,12 @@ DIFFICULTY_QUERY = "difficulties"
 DIFFICULTY_LABEL_QUERY = "difficulty_labels"
 DOC_QUERY = "game_docstring"
 GAME_VARIATIONS_QUERY = "game_variations"
+GAME_UNLOCKED_QUERY = "unlocked_by_default"
 # These can be processed without requiring special checks
 DEFAULT_QUERIES = (
     GAME_VARIATIONS_QUERY,
     DOC_QUERY,
+    GAME_UNLOCKED_QUERY,
 )
 
 
@@ -65,24 +67,24 @@ class GameDataManager:
             if len(diff_labels) == 0:
                 diff_labels = self.game_data[DEFAULTS_KEY_QUERY][DIFFICULTY_LABEL_QUERY]
 
-            if len(diffs) != len(diff_labels):
-                for k in [i for i in diffs if str(i) not in diff_labels]:
-                    sk = str(k)
-                    if (
-                        sk
-                        not in self.game_data[DEFAULTS_KEY_QUERY][
-                            DIFFICULTY_LABEL_QUERY
-                        ]
-                    ):
-                        raise ValueError(
-                            "Missing difficulty label for %s in %s. Either extend default settings, remove this number, or provide a label"
-                            % (sk, name)
-                        )
-                    else:
-                        diff_labels[sk] = self.game_data[DEFAULTS_KEY_QUERY][
-                            DIFFICULTY_LABEL_QUERY
-                        ][sk]
+            for k in [i for i in diffs if str(i) not in diff_labels]:
+                sk = str(k)
+                if (
+                    sk
+                    not in self.game_data[DEFAULTS_KEY_QUERY][
+                        DIFFICULTY_LABEL_QUERY
+                    ]
+                ):
+                    raise ValueError(
+                        'Missing difficulty label for "%s" in %s. Either extend default settings, remove this number, or provide a label'
+                        % (sk, name)
+                    )
+                else:
+                    diff_labels[sk] = self.game_data[DEFAULTS_KEY_QUERY][
+                        DIFFICULTY_LABEL_QUERY
+                    ][sk]
 
+            diffs.sort()
             game[DIFFICULTY_QUERY] = diffs
             game[DIFFICULTY_LABEL_QUERY] = diff_labels
 
@@ -90,3 +92,23 @@ class GameDataManager:
             for k in DEFAULT_QUERIES:
                 if not game.get(k, None):
                     game[k] = self.game_data[DEFAULTS_KEY_QUERY][k]
+
+    def gather_unlocked_games(self):
+        return_dict = {}
+        for name, game in self.game_data[GAME_KEY_QUERY].items():
+            if not game.get(GAME_UNLOCKED_QUERY, False):
+                continue
+
+            # We, a bit arbitrarily, unlock the first variation for each unlocked ggame
+            # We also unlock a single difficulty
+            varname = game[GAME_VARIATIONS_QUERY][0]
+            diffnum = game[DIFFICULTY_QUERY][0]
+            return_dict[name] = {GAME_VARIATIONS_QUERY: {varname: [diffnum]}}
+
+        return return_dict
+
+    def generate_new_player_data(self):
+        # We just gather unlocked games, for now
+        # This will possibly be extended as more stuff gets added
+        unlocked_games = self.gather_unlocked_games()
+        return unlocked_games

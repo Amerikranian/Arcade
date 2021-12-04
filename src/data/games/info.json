@@ -13,7 +13,8 @@
         "game_variations": [
             "Standard"
         ],
-        "game_docstring": "No documentation provided."
+        "game_docstring": "No documentation provided.",
+        "unlocked_by_default": false
     },
     "games": {
         "Hangman": {
@@ -22,7 +23,8 @@
             "difficulties": [],
             "difficulty_labels": {
                 "2": "Super hard"
-            }
+            },
+            "unlocked_by_default": true
         }
     }
 }

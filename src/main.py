@@ -15,7 +15,8 @@ def main():
     c = pygame.time.Clock()
     gdm = GameDataManager()
     gdm.load(GAME_INFO_PATH)
-    print(gdm.game_data["games"])
+    print(gdm.generate_new_player_data())
+    print(gdm.game_data)
     sm = ScreenManager()
     s = Menu(
         {
