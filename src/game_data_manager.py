@@ -69,12 +69,7 @@ class GameDataManager:
 
             for k in [i for i in diffs if str(i) not in diff_labels]:
                 sk = str(k)
-                if (
-                    sk
-                    not in self.game_data[DEFAULTS_KEY_QUERY][
-                        DIFFICULTY_LABEL_QUERY
-                    ]
-                ):
+                if sk not in self.game_data[DEFAULTS_KEY_QUERY][DIFFICULTY_LABEL_QUERY]:
                     raise ValueError(
                         'Missing difficulty label for "%s" in %s. Either extend default settings, remove this number, or provide a label'
                         % (sk, name)
@@ -111,4 +106,4 @@ class GameDataManager:
         # We just gather unlocked games, for now
         # This will possibly be extended as more stuff gets added
         unlocked_games = self.gather_unlocked_games()
-        return unlocked_games
+        return {GAME_KEY_QUERY: unlocked_games}

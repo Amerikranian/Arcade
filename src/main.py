@@ -6,17 +6,13 @@ import pygame
 import games
 from menu import Menu
 from screen_manager import ScreenManager
-from game_data_manager import GameDataManager
-
-GAME_INFO_PATH = "data/games/info.json"
+from context import Context
 
 
 def main():
     c = pygame.time.Clock()
-    gdm = GameDataManager()
-    gdm.load(GAME_INFO_PATH)
-    print(gdm.generate_new_player_data())
-    print(gdm.game_data)
+    ctx = Context()
+    ctx.load_resources()
     sm = ScreenManager()
     s = Menu(
         {
@@ -28,6 +24,8 @@ def main():
     while sm.has_screens():
         delta = c.tick(60) / 1000
         sm.update(delta)
+
+    ctx.free_resources()
 
 
 if __name__ == "__main__":

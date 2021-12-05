@@ -4,8 +4,8 @@ from screen import Screen
 
 class GameObserver(Observer):
     """An observer designed to handle logic within games.
-    Provides convenient wrappers to extract context from arguments as well as handle dispatching of events for differing variations
-    Event handlers must be able to accept context as their first parameter
+    Provides convenient wrappers to extract callers from arguments as well as handle dispatching of events for differing variations
+    Event handlers must be able to accept game as their first parameter
     """
 
     def fetch_dynamic_attr(self, attr, variation):
@@ -22,8 +22,8 @@ class GameObserver(Observer):
         return super().fetch_dynamic_attr()
 
     def notify(self, event_type, *args, **kwargs):
-        if "ctx" in kwargs:
-            context = kwargs.pop("ctx")
+        if "game" in kwargs:
+            context = kwargs.pop("game")
         else:
             context = None
         self.fetch_dynamic_attr(event_type, kwargs.get("variation", ""))(
@@ -57,15 +57,12 @@ class Game(Screen):
         self.difficulty = difficulty
 
     def send_notification(self, event_type, *args, **kwargs):
-        """Sends notifications to any observers, injecting variation, difficulty, and context.
-        For now, we don't inject `self` because doing so encourages storage of state on the game.
-        This may be subject to change
-        """
+        """Sends notifications to any observers, injecting variation, difficulty, and self."""
         self.observer.notify(
             event_type,
             variation=self.variation,
             difficulty=self.difficulty,
-            ctx=self.context,
+            game=self,
             **kwargs,
         )
 
