@@ -16,14 +16,14 @@ class MenuItem:
 
 
 class Menu(Screen):
-    def __init__(self, items):
+    def __init__(self):
         super().__init__()
-        # Items must be dicts of name: callback
+        self.intro_message = ""
         self.items = []
-        for name, clb in items.items():
-            self.add_item(name, clb)
-
         self.cursor_position = 0
+
+    def set_intro_message(self, msg):
+        self.intro_message = msg
 
     def add_item(self, name, callback):
         if not callable(callback):
@@ -50,6 +50,12 @@ class Menu(Screen):
         if temp != self.cursor_position:
             self.cursor_position = temp
             self.focus_item()
+
+    def get_progress_of_enter_transition(self, delta):
+        if self.intro_message:
+            tolk.output(self.intro_message, True)
+        self.focus_item()
+        return False
 
     def handle_input(self, delta, input_state):
         if input_state.key_pressed(pl.K_UP):

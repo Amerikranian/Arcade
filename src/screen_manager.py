@@ -3,16 +3,20 @@ from screen import Screen, IS_ACTIVE
 
 
 class ScreenManager:
-    def __init__(self):
+    def __init__(self, ctx=None):
         self.input_state = Keyboard()
         self.screens = []
+        self.context = ctx
 
     def has_screens(self):
         return len(self.screens) > 0
 
     def add_screen(self, screen):
-        screen.on_create()
+        # Do injection of `self` and `self.context` first
+        # This is so that the screen has access to any resource storages on context
         screen.set_screen_manager_instance(self)
+        screen.set_context(self.context)
+        screen.on_create()
         self.screens.append(screen)
 
     def remove_screen(self, screen):

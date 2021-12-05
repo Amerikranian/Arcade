@@ -1,3 +1,4 @@
+import json
 from game_data_manager import GAME_KEY_QUERY
 
 
@@ -30,3 +31,7 @@ class Player:
                 % (game, variation, ", ".join(vars))
             )
         return vars[variation]
+
+    def save(self):
+        # We only have one thing to save for now
+        return json.dumps(self.game_state)
