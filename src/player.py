@@ -1,5 +1,5 @@
 import json
-from game_data_manager import GAME_KEY_QUERY
+from game_data_manager import GAME_KEY_QUERY, GAME_VARIATIONS_QUERY
 
 
 class Player:
@@ -21,7 +21,7 @@ class Player:
                 'The provided game, "%s", is not in game state list. Valid options are %s'
                 % (game, ", ".join(self.fetch_unlocked_games()))
             )
-        return self.game_state[GAME_KEY_QUERY][game].keys()
+        return self.game_state[GAME_KEY_QUERY][game][GAME_VARIATIONS_QUERY].keys()
 
     def fetch_unlocked_game_variation_difficulties(self, game, variation):
         vars = self.fetch_unlocked_game_variations(game)
@@ -30,7 +30,7 @@ class Player:
                 'The provided variation for %s, "%s", is not in the game variation list. Valid options are %s'
                 % (game, variation, ", ".join(vars))
             )
-        return vars[variation]
+        return self.game_state[GAME_KEY_QUERY][game][GAME_VARIATIONS_QUERY][variation]
 
     def save(self):
         # We only have one thing to save for now

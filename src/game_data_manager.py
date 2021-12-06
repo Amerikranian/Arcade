@@ -16,6 +16,8 @@ DEFAULT_QUERIES = (
     DOC_QUERY,
     GAME_UNLOCKED_QUERY,
 )
+# We don't enforce the presence of these because they are unique to each game data instance
+GAME_DISPLAY_NAME_QUERY = "display_name"
 
 
 class GameDataManager:
@@ -107,3 +109,17 @@ class GameDataManager:
         # This will possibly be extended as more stuff gets added
         unlocked_games = self.gather_unlocked_games()
         return {GAME_KEY_QUERY: unlocked_games}
+
+    def fetch_game(self, game):
+        if game not in self.game_data[GAME_KEY_QUERY]:
+            raise ValueError('The selected game, "%s", does not exist' % game)
+        return self.game_data[GAME_KEY_QUERY][game]
+
+    def fetch_game_display_name(self, game):
+        return self.fetch_game(game).get(GAME_DISPLAY_NAME_QUERY, game).capitalize()
+
+    def fetch_game_doc(self, game):
+        return self.fetch_game(game)[DOC_QUERY]
+
+    def fetch_game_difficulty_label(self, game, diff):
+        return self.fetch_game(game)[DIFFICULTY_LABEL_QUERY][str(diff)]

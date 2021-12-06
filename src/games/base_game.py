@@ -16,10 +16,10 @@ class GameObserver(Observer):
         # We support logic functions that look like handle_submit_partial, where submit is event type and partial is the game varient
         # The downside to this is needing to update code when the variation is renamed
         # The alternative was to treat variations as integers
-        attr_name = f"handle_{event_type}_{variation}"
+        attr_name = f"handle_{attr}_{variation}"
         if hasattr(self, attr_name):
             return getattr(self, attr_name)
-        return super().fetch_dynamic_attr()
+        return super().fetch_dynamic_attr(attr)
 
     def notify(self, event_type, *args, **kwargs):
         if "game" in kwargs:
@@ -36,7 +36,7 @@ class GameObserver(Observer):
 
 
 class Game(Screen):
-    """A base game class, serving as both of a subject and an observer.
+    """A base game class, serving as both of a subject.
     The purpose of doing this is so that the game could focus on handling user input and send out events for different user actions.
     The basic idea is to inherit this class and override any method from the Screen class. Following this, import this in __init__.py, fix any issues, and repeat for subsequent creations.
     Each game may have a list of variations, and each variation may have its own number of difficulty modes, as described by the info.json file located within the data/games/.
@@ -57,12 +57,12 @@ class Game(Screen):
         self.difficulty = difficulty
 
     def send_notification(self, event_type, *args, **kwargs):
-        """Sends notifications to any observers, injecting variation, difficulty, and self."""
         self.observer.notify(
             event_type,
             variation=self.variation,
             difficulty=self.difficulty,
             game=self,
+            *args,
             **kwargs,
         )
 

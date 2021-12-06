@@ -1,1 +1,1 @@
-from .base_game import Game
+from .hangman import Hangman
