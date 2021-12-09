@@ -24,9 +24,19 @@ class ScreenManager:
             self.screens.remove(screen)
         screen.on_destroy()
 
+    def clear_all_screens(self, is_forced):
+        for s in self.screens[::-1]:
+            if is_forced:
+                self.remove_screen(s)
+            else:
+                s.exit()
+
     def update(self, delta):
         self.input_state.update()
-        # we make a copy of thew screen stack in case handling input removes screens or screens pop
+        if self.input_state.quit_event:
+            self.clear_all_screens(True)
+
+        # we make a copy of the screen stack in case handling input removes screens or screen updates cause them to pop
         temp_screens = self.screens.copy()
         has_given_input = False
         for i in range(len(temp_screens) - 1, -1, -1):

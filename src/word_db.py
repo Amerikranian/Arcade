@@ -1,7 +1,5 @@
 import sqlite3
 
-WORD_TABLE_NAME = "words"
-
 
 class WordDB:
     def __init__(self):

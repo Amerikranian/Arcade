@@ -1,6 +1,9 @@
 from observer import Observer
 from screen import Screen
 
+EVT_GAME_STARTED = "start"
+EVT_GAME_ENDED = "end"
+
 
 class GameObserver(Observer):
     """An observer designed to handle logic within games.
@@ -34,6 +37,10 @@ class GameObserver(Observer):
         """Determines whether the given game has come to a conclusion"""
         return False
 
+    def gather_statistics(self):
+        """Called at the end of the game to generate game statistics. Anything is valid as long as keys / values can be dumped into json"""
+        pass
+
 
 class Game(Screen):
     """A base game class, serving as both of a subject.
@@ -47,7 +54,6 @@ class Game(Screen):
     Variations and difficulties will be converted to their string equivalents, as either supplied by the creator or inferred by the program in the latter's case
     If no variation is provided, it is assumed that the game behaves in standard mode.
     If not specified otherwise, each variation will have 3 default difficulties.
-    Creators can use empty quotation marks rather than a variation name to refer to the standard variation
     """
 
     def __init__(self, variation, difficulty, obs):
@@ -67,4 +73,18 @@ class Game(Screen):
         )
 
         if self.observer.has_ended():
+            # We notify the observer one more time and quit
+            # Will probably be changed when sounds are added
+            self.observer.notify(
+                EVT_GAME_ENDED,
+                variation=self.variation,
+                difficulty=self.difficulty,
+                game=self,
+                *args,
+                **kwargs,
+            )
             self.exit()
+
+    def on_create(self):
+        """Quick wrapper to send out start event"""
+        self.send_notification(EVT_GAME_STARTED)
