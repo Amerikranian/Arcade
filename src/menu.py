@@ -13,7 +13,7 @@ class MenuItem:
         return self.name
 
     def invoke(self, menu_instance):
-        if should_exit:
+        if self.should_exit:
             menu_instance.exit()
         self.item_callback(menu_instance)
 
