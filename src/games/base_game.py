@@ -1,3 +1,4 @@
+from game_menus import StatisticsMenu
 from observer import Observer
 from screen import Screen
 
@@ -35,11 +36,35 @@ class GameObserver(Observer):
 
     def has_ended(self):
         """Determines whether the given game has come to a conclusion"""
-        return False
+        return self.has_won() or self.has_lost()
 
     def gather_statistics(self):
-        """Called at the end of the game to generate game statistics. Anything is valid as long as keys / values can be dumped into json"""
+        """Called at the end of the game to generate game statistics. Anything is valid as long as keys / values can be dumped into json. The dictionary must contain stat_items, and can also contain s_intro and include_statistics. See StatisticsMenu for further details"""
+        return {"stat_items": {}}
+
+    def has_lost(self):
+        return False
+
+    def has_won(self):
+        return False
+
+    def win(self):
         pass
+
+    def lose(self):
+        pass
+
+    def run_cleanup(self):
+        """Called at the end of the game, regardless of win/lose status"""
+        pass
+
+    def handle_end(self, game, *args, **kwargs):
+        if self.has_won():
+            self.win()
+        else:
+            self.lose()
+        self.run_cleanup()
+        game.screen_manager.add_screen(StatisticsMenu(**self.gather_statistics()))
 
 
 class Game(Screen):

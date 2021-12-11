@@ -32,6 +32,10 @@ class Menu(Screen):
             )
         self.items.append(MenuItem(name, callback))
 
+    def add_items(self, items):
+        for k, v in items.items():
+            self.add_item(k, v)
+
     def focus_item(self):
         # Will probably become function on `MenuItem` at some point
         tolk.output(str(self.items[self.cursor_position]))

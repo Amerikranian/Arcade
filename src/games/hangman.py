@@ -30,18 +30,16 @@ class HangmanObs(TextGameObserver):
         # We override this because Hangman handles letters differently
         if not self.is_char_matching(char):
             return False
-        if char in self.guessed_letters:
-            if difficulty > 0:
-                self.remaining_guesses -= 1
-            else:
-                tolk.output("You already guessed that", True)
-        else:
+        # We forgive letter repetitions on easy
+        if char in self.guessed_letters and difficulty == 0:
+            tolk.output("You already guessed that!")
+            return True
+        self.guessed_letters.add(char)
+        if char not in self.text:
             self.remaining_guesses -= 1
-            self.guessed_letters.add(char)
-            if char in self.text:
-                self.announce_word()
-            else:
-                tolk.output("No such luck", True)
+            tolk.output("No such luck.", True)
+        else:
+            self.announce_word()
         return True
 
     def handle_text_scroll(self, game, *args, **kwargs):
@@ -63,3 +61,19 @@ class HangmanObs(TextGameObserver):
         return min(
             super().calculate_cursor_offset(self.cursor, direction), len(self.text) - 1
         )
+
+    def has_won(self):
+        return all(l in self.guessed_letters for l in self.text)
+
+    def has_lost(self):
+        return self.remaining_guesses == 0
+
+    def gather_statistics(self):
+        l = lambda x: x.exit()
+        return {
+            "stat_items": {
+                f"Game conclusion: {'Success' if self.has_won() else 'Failure'}": l,
+                f"Hidden word: {self.text.capitalize()}": l,
+                f"Remaining guesses: {self.remaining_guesses}": l,
+            }
+        }

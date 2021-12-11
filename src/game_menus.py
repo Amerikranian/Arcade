@@ -4,6 +4,9 @@ This file should be updated with menus that either don't rely on any game or do 
 import games
 from menu import Menu
 
+# Optionally added at the end of statistics prompt
+STAT_INTRO = "statistics"
+
 
 class MainMenu(Menu):
     def on_create(self):
@@ -133,3 +136,18 @@ class GameDifficultyMenu(Menu):
     def activate_item(self):
         super().activate_item()
         self.exit()
+
+
+class StatisticsMenu(Menu):
+    def __init__(self, stat_items, s_intro="", include_statistics=True):
+        super().__init__()
+        # We add items now, while we have them
+        self.add_items(stat_items)
+        self.add_item("Go back", lambda x: x.exit())
+        self.set_intro_message(
+            s_intro if not include_statistics else s_intro + STAT_INTRO
+        )
+
+    def on_create(self):
+        if len(self.items) == 0:
+            self.exit()
