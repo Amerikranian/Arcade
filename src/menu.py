@@ -4,14 +4,17 @@ from screen import Screen
 
 
 class MenuItem:
-    def __init__(self, name, item_callback):
+    def __init__(self, name, item_callback, should_exit):
         self.name = name
         self.item_callback = item_callback
+        self.should_exit = should_exit
 
     def __repr__(self):
         return self.name
 
     def invoke(self, menu_instance):
+        if should_exit:
+            menu_instance.exit()
         self.item_callback(menu_instance)
 
 
@@ -25,12 +28,12 @@ class Menu(Screen):
     def set_intro_message(self, msg):
         self.intro_message = msg
 
-    def add_item(self, name, callback):
+    def add_item(self, name, callback, should_exit=False):
         if not callable(callback):
             raise ValueError(
                 "The provided item, %s, must have a callable callback" % name
             )
-        self.items.append(MenuItem(name, callback))
+        self.items.append(MenuItem(name, callback, should_exit))
 
     def add_items(self, items):
         for k, v in items.items():
