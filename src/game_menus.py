@@ -13,7 +13,7 @@ class MainMenu(Menu):
         self.add_item(
             "Play games", lambda x: x.screen_manager.add_screen(GameListMenu())
         )
-        self.add_item("Quit", lambda x: x.exit())
+        self.add_item_without_callback("Quit")
         self.set_intro_message("Welcome!")
 
 
@@ -32,7 +32,7 @@ class GameListMenu(Menu):
                 self.context.gdm.fetch_game_display_name(game),
                 lambda x: x.screen_manager.add_screen(GameSelectedMenu(game)),
             )
-        self.add_item("Go back", lambda x: x.exit())
+        self.add_item_without_callback("Go back")
         self.set_intro_message("What would you like to play?")
 
 
@@ -50,7 +50,7 @@ class GameSelectedMenu(Menu):
             "Instructions",
             lambda x: x.screen_manager.add_screen(GameHelpMenu(self.game_name)),
         )
-        self.add_item("Go back", lambda x: x.exit())
+        self.add_item_without_callback("Go back")
         self.set_intro_message(
             "%s menu" % self.context.gdm.fetch_game_display_name(self.game_name)
         )
@@ -64,7 +64,7 @@ class GameHelpMenu(Menu):
     def on_create(self):
         for i in self.context.gdm.fetch_game_doc(self.game_name).splitlines():
             self.add_item(i, lambda x: x.exit())
-        self.add_item("Go back", lambda x: x.exit())
+        self.add_item_without_callback("Go back")
         self.set_intro_message(
             "%s instructions menu"
             % self.context.gdm.fetch_game_display_name(self.game_name)
@@ -77,33 +77,23 @@ class GameVariationMenu(Menu):
         self.game_name = game_name
 
     def on_create(self):
-        # We only create the menu if the player has more than one variation unlocked
         variations = list(
             self.context.player.fetch_unlocked_game_variations(self.game_name)
         )
-        if len(variations) > 1:
-            for v in variations:
-                self.add_item(
-                    v,
-                    lambda x: self.screen_manager.add_screen(
-                        GameDifficultyMenu(self.game_name, v)
-                    ),
-                )
-            self.add_item("Go back", lambda x: x.exit())
-            self.set_intro_message(
-                "%s variation menu"
-                % self.context.gdm.fetch_game_display_name(self.game_name)
+        for v in variations:
+            self.add_item(
+                v,
+                lambda x: self.screen_manager.add_screen(
+                    GameDifficultyMenu(self.game_name, v)
+                ),
+                True,
             )
-        else:
-            self.screen_manager.add_screen(
-                GameDifficultyMenu(self.game_name, variations[0])
-            )
-            self.exit()
 
-    def activate_item(self):
-        # We override this so that we exit the menu and return the player back to the game play menu after statistics menu has been shown
-        super().activate_item()
-        self.exit()
+        self.add_item_without_callback("Go back")
+        self.set_intro_message(
+            "%s variation menu"
+            % self.context.gdm.fetch_game_display_name(self.game_name)
+        )
 
 
 class GameDifficultyMenu(Menu):
@@ -113,41 +103,39 @@ class GameDifficultyMenu(Menu):
         self.variation = variation
 
     def on_create(self):
-        # Just like variations, we generate difficulty options when we actually have them
-        # If we do this more we'll create a generic menu, but for now copypasting it is
         diffs = self.context.player.fetch_unlocked_game_variation_difficulties(
             self.game_name, self.variation
         )
-        if len(diffs) > 1:
-            for d in diffs:
-                self.add_item(
-                    self.context.gdm.fetch_game_difficulty_label(self.game_name, d),
-                    lambda x: x.screen_manager.add_screen(
-                        getattr(games, self.game_name)(self.variation, d)
-                    ),
-                )
-            self.add_item("Go back", lambda x: x.exit())
-        else:
-            self.screen_manager.add_screen(
-                getattr(games, self.game_name)(self.variation, diffs[0])
+        for d in diffs:
+            self.add_item(
+                self.context.gdm.fetch_game_difficulty_label(self.game_name, d),
+                lambda x: x.screen_manager.add_screen(
+                    getattr(games, self.game_name)(self.variation, d)
+                ),
+                True,
             )
-            self.exit()
 
-    def activate_item(self):
-        super().activate_item()
-        self.exit()
+        self.add_item_without_callback("Go back")
+        self.set_intro_message("%s difficulty menu" % self.game_name)
 
 
 class StatisticsMenu(Menu):
     def __init__(self, stat_items, s_intro="", include_statistics=True):
         super().__init__()
-        # We add items now, while we have them
-        self.add_items(stat_items)
-        self.add_item("Go back", lambda x: x.exit())
-        self.set_intro_message(
-            s_intro if not include_statistics else s_intro + STAT_INTRO
-        )
+        self.stat_items = stat_items
+        self.s_intro = s_intro
+        self.inc_stats = include_statistics
 
     def on_create(self):
+        for k, v in self.stat_items.items():
+            self.add_item(k, v)
         if len(self.items) == 0:
             self.exit()
+            return
+
+        self.add_item_without_callback("Go back")
+        self.set_intro_message(
+            self.s_intro
+            if not self.inc_stats or not self.s_intro
+            else self.s_intro + STAT_INTRO
+        )

@@ -42,6 +42,8 @@ class GameObserver(Observer):
         """Called at the end of the game to generate game statistics. Anything is valid as long as keys / values can be dumped into json. The dictionary must contain stat_items, and can also contain s_intro and include_statistics. See StatisticsMenu for further details"""
         return {"stat_items": {}}
 
+    # The next two functions are expected to return quickly and should not involve heavy computation
+    # This is because they are called whenever the game is dispatching any events
     def has_lost(self):
         return False
 
