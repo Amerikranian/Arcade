@@ -4,6 +4,8 @@ from .text_game import TextGame, TextGameObserver
 
 # Sent when user requests to see the entire word
 EVT_WORD_CHECK = "word_check"
+# Sent when user requests to see remaining guesses
+EVT_GUESS_CHECK = "guess_check"
 
 
 class Hangman(TextGame):
@@ -14,6 +16,8 @@ class Hangman(TextGame):
         super().handle_input(delta, input_state)
         if input_state.key_pressed(pygame.K_TAB):
             self.send_notification(EVT_WORD_CHECK)
+        elif input_state.key_pressed(pygame.K_SPACE):
+            self.send_notification(EVT_GUESS_CHECK)
 
 
 class HangmanObs(TextGameObserver):
@@ -50,6 +54,11 @@ class HangmanObs(TextGameObserver):
 
     def handle_word_check(self, game, *args, **kwargs):
         tolk.output("".join(self.fetch_word_character(i) for i in self.text))
+
+    def handle_guess_check(self, game, *args, **kwargs):
+        tolk.output(
+            f"{self.remaining_guesses} guess{'es' if self.remaining_guesses > 1 else ''} remaining"
+        )
 
     def fetch_word_character(self, char):
         return "*" if char not in self.guessed_letters else char
