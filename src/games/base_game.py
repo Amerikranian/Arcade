@@ -1,9 +1,11 @@
-from game_menus import StatisticsMenu
+import pygame
+from game_menus import QuitMenu, StatisticsMenu
 from observer import Observer
 from screen import Screen
 
 EVT_GAME_STARTED = "start"
 EVT_GAME_ENDED = "end"
+EVT_REQUEST_QUIT = "menu_quit"
 
 
 class GameObserver(Observer):
@@ -61,12 +63,19 @@ class GameObserver(Observer):
         pass
 
     def handle_end(self, game, *args, **kwargs):
+        self.run_cleanup()
+        if kwargs.get("quit_flag", False):
+            game.screen_manager.fetch_screen_from_top(2).exit()
+            return
+
         if self.has_won():
             self.win()
         else:
             self.lose()
-        self.run_cleanup()
         game.screen_manager.add_screen(StatisticsMenu(**self.gather_statistics()))
+
+    def handle_menu_quit(self, game, *args, **kwargs):
+        game.screen_manager.add_screen(QuitMenu(EVT_GAME_ENDED))
 
 
 class Game(Screen):
@@ -115,3 +124,8 @@ class Game(Screen):
     def on_create(self):
         """Quick wrapper to send out start event"""
         self.send_notification(EVT_GAME_STARTED)
+
+    def handle_input(self, delta, input_state):
+        """Generic game keys"""
+        if input_state.key_pressed(pygame.K_ESCAPE):
+            self.send_notification(EVT_REQUEST_QUIT)

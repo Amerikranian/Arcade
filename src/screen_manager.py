@@ -24,6 +24,9 @@ class ScreenManager:
             self.screens.remove(screen)
         screen.on_destroy()
 
+    def fetch_screen_from_top(self, offset):
+        return self.screens[-offset]
+
     def clear_all_screens(self, is_forced):
         for s in self.screens[::-1]:
             if is_forced:

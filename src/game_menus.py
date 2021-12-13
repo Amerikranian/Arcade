@@ -139,3 +139,25 @@ class StatisticsMenu(Menu):
             if not self.inc_stats or not self.s_intro
             else self.s_intro + STAT_INTRO
         )
+
+
+class QuitMenu(Menu):
+    """The classic "Are you sure" prompt.
+    We assume that the next state in the stack, I.e, stack[-2], can send notifications.
+    We inject `quit_flag` into the notification, but only if the user affirms that they would like to quit, otherwise we just pop.
+    """
+
+    def __init__(self, evt_type):
+        super().__init__()
+        self.evt_type = evt_type
+
+    def on_create(self):
+        self.add_item(
+            "Yes",
+            lambda x: x.screen_manager.fetch_screen_from_top(2).send_notification(
+                self.evt_type, quit_flag=True
+            ),
+            True,
+        )
+        self.add_item_without_callback("No")
+        self.set_intro_message("Are you sure you would like to quit?")
