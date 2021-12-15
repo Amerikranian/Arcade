@@ -8,6 +8,7 @@ class Player:
 
     def __init__(self):
         self.game_state = {}
+        self.last_played_game = ""
 
     def set_state(self, state):
         self.game_state = state
@@ -35,3 +36,9 @@ class Player:
     def save(self):
         # We only have one thing to save for now
         return json.dumps(self.game_state)
+
+    def set_last_played_game(self, g):
+        self.last_played_game = g
+
+    def fetch_last_game_played(self):
+        return self.last_played_game
