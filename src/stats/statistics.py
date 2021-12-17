@@ -11,6 +11,13 @@ class Statistic:
     def eval(self):
         raise NotImplementedError("No evaluation possible for this statistic")
 
+    def update(self, value):
+        pass
+
+    def save(self):
+        """Persist the statistic. Do not export"""
+        pass
+
 
 class TextStatistic(Statistic):
     """A way to provide textual information, such as the hidden word in Hangman"""
@@ -23,19 +30,11 @@ class TextStatistic(Statistic):
 class NumericStatistic(Statistic):
     """A statistic designed to calculate mean and the like"""
 
-    def __init__(self, output_str, value, given_offset=0, n=-1, rnd_digits=3):
+    def __init__(self, output_str, value, n=0, rnd_digits=3):
         super().__init__(output_str)
         self.value = value
-        # Most of the time, this will be an already-existent statistic
-        # To put it another way, value is the modification to the offset
-        self.given_offset = given_offset
+        self.new_value = 0
         # Population size
         self.n = n
         # How much should we round to
         self.rnd_digits = rnd_digits
-
-    def set_offset(self, offset):
-        self.given_offset = offset
-
-    def set_n(self, n):
-        self.n = n
