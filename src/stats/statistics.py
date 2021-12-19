@@ -1,6 +1,6 @@
 class Statistic:
     """A general statistic, used as a base for its successors
-    The basic idea is to inherit this, provide output strings, and override the eval function to return as many placeholders as `output_str` contains"""
+    Currently does not support verifying valid message strings, I.e, the amount of given placeholders vs. the arguments spat out by eval"""
 
     def __repr__(self):
         return str(self.eval())
@@ -11,12 +11,23 @@ class Statistic:
     def update(self, value):
         pass
 
+    def to_json(self):
+        """Dumps all of the non-private attributes of the class to a dict
+        Will not work with complex objects, more complex stats will need to override this to provide any modifications"""
+        return {
+            attr: getattr(self, attr)
+            for attr in filter(lambda p: not p.startswith("_"), dir(self))
+        }
 
-class TextStatistic(Statistic):
-    """A way to provide textual information, such as the hidden word in Hangman"""
-
-    def __init__(self, txt):
-        self.text = txt
+    def from_json(self, attrs):
+        """Tries to match the given attributes to those on self, complaining when lookup fails"""
+        for attr, val in attrs.items():
+            if not hasattr(self, attr):
+                raise ValueError(
+                    'Failed to load attribute "%s" on the given statistic' % attr
+                )
+            else:
+                setattr(self, attr, val)
 
 
 class NumericStatistic(Statistic):
@@ -24,8 +35,7 @@ class NumericStatistic(Statistic):
 
     def __init__(self, value=0, n=0, rnd_digits=3):
         self.value = value
-        self.new_value = 0
         # Population size
         self.n = n
         # How much should we round to
-        self.rnd_digits = rnd_digits
+        self._rnd_digits = rnd_digits
