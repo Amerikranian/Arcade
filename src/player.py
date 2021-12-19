@@ -15,7 +15,6 @@ class Player:
         self.game_state = state
 
     def set_stat_state(self, state):
-        print(state)
         self.statistics = state
 
     def fetch_unlocked_games(self):
@@ -38,9 +37,20 @@ class Player:
             )
         return self.game_state[GAME_KEY_QUERY][game][GAME_VARIATIONS_QUERY][variation]
 
-    def save(self):
-        # We only have one thing to save for now
-        return json.dumps(self.game_state)
+    def to_json(self, json_indent=4):
+        stats = {}
+        for name, val in self.statistics.items():
+            stats[name] = {GAME_VARIATIONS_QUERY: {}}
+            for var, stat in val[GAME_VARIATIONS_QUERY].items():
+                stats[name][GAME_VARIATIONS_QUERY] = {}
+                stats[name][GAME_VARIATIONS_QUERY][var] = {
+                    stat_name: stat_val.to_json()
+                    for stat_name, stat_val in stat.items()
+                }
+
+        return json.dumps(
+            {"games": self.game_state, "stats": stats}, indent=json_indent
+        )
 
     def set_last_played_game(self, g):
         self.last_played_game = g

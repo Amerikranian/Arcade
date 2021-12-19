@@ -1,3 +1,6 @@
+PRIMITIVE_TYPES = (str, int, float, bool)
+
+
 class Statistic:
     """A general statistic, used as a base for its successors
     Currently does not support verifying valid message strings, I.e, the amount of given placeholders vs. the arguments spat out by eval"""
@@ -16,7 +19,11 @@ class Statistic:
         Will not work with complex objects, more complex stats will need to override this to provide any modifications"""
         return {
             attr: getattr(self, attr)
-            for attr in filter(lambda p: not p.startswith("_"), dir(self))
+            for attr in filter(
+                lambda p: not p.startswith("_")
+                and type(getattr(self, p)) in PRIMITIVE_TYPES,
+                dir(self),
+            )
         }
 
     def from_json(self, attrs):

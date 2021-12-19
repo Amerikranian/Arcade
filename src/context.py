@@ -1,3 +1,4 @@
+import json
 import os
 from game_data_manager import GameDataManager
 from player import Player
@@ -22,13 +23,17 @@ class Context:
         # Should probably be changed to offer a more standardize file interface
         # This way we have all file management in one spot and can possibly add a crypto backend, if we make it that far
         self.gdm.load(GAME_INFO_PATH)
-        if not os.path.isfile(PLAYER_SAVE_PATH):
-            data = self.gdm.generate_new_player_data()
-            self.player.set_game_state(data["games"])
-            self.player.set_stat_state(data["stats"])
-        else:
-            pass
+        # if not os.path.isfile(PLAYER_SAVE_PATH):
+        data = self.gdm.generate_new_player_data()
+        self.player.set_game_state(data["games"])
+        self.player.set_stat_state(data["stats"])
         self.word_db.load(WORD_DB_PATH)
+
+    def export_resources(self):
+        """Anything related to saving should go here"""
+        data = self.player.to_json()
+        with open(PLAYER_SAVE_PATH, "w") as f:
+            f.write(data)
 
     def free_resources(self):
         """Intended to be used as a method of cleanup for things like sqlite and later sound system"""

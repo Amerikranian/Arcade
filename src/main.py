@@ -19,6 +19,7 @@ def main():
         delta = c.tick(60) / 1000
         sm.update(delta)
 
+    ctx.export_resources()
     ctx.free_resources()
 
 
