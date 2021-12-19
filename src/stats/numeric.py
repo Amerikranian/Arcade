@@ -10,6 +10,12 @@ class Number(NumericStatistic):
     def update(self, value):
         self.value += value
 
+    def to_json(self):
+        """We do not need to keep track of `self.n` because it doesn't matter for computation purposes"""
+        data = super().to_json()
+        data.pop("n")
+        return data
+
 
 class Mean(NumericStatistic):
     """Expects one placeholder"""
