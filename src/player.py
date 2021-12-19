@@ -15,6 +15,7 @@ class Player:
         self.game_state = state
 
     def set_stat_state(self, state):
+        print(state)
         self.statistics = state
 
     def fetch_unlocked_games(self):

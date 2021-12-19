@@ -165,7 +165,7 @@ class GameDataManager:
         for k, v in game[STAT_KEY_QUERY][STAT_CLASS_QUERY].items():
             stat_lst[k] = getattr(statistics_mod, v[STAT_CLS_TYPE])()
 
-        return dct, {varname: stat_lst}
+        return dct, {GAME_VARIATIONS_QUERY: {varname: stat_lst}}
 
     def gather_unlocked_games(self):
         return_dict = {"games": {}, "stats": {}}
