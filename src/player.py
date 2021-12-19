@@ -37,19 +37,22 @@ class Player:
             )
         return self.game_state[GAME_KEY_QUERY][game][GAME_VARIATIONS_QUERY][variation]
 
-    def to_json(self, json_indent=4):
-        stats = {}
-        for name, val in self.statistics.items():
-            stats[name] = {GAME_VARIATIONS_QUERY: {}}
-            for var, stat in val[GAME_VARIATIONS_QUERY].items():
-                stats[name][GAME_VARIATIONS_QUERY] = {}
-                stats[name][GAME_VARIATIONS_QUERY][var] = {
-                    stat_name: stat_val.to_json()
-                    for stat_name, stat_val in stat.items()
-                }
+    def _assemble_recursive_stat_dict(self, initial_dict):
+        dct = {}
+        for k in initial_dict:
+            if isinstance(initial_dict[k], dict):
+                dct[k] = self._assemble_recursive_stat_dict(initial_dict[k])
+            else:
+                dct[k] = initial_dict[k].to_json()
+        return dct
 
+    def to_json(self, json_indent=4):
         return json.dumps(
-            {"games": self.game_state, "stats": stats}, indent=json_indent
+            {
+                "games": self.game_state,
+                "stats": self._assemble_recursive_stat_dict(self.statistics),
+            },
+            indent=json_indent,
         )
 
     def set_last_played_game(self, g):

@@ -156,16 +156,19 @@ class GameDataManager:
                 if not game.get(k, None):
                     game[k] = self.game_data[DEFAULTS_KEY_QUERY][k]
 
+    def gather_unlocked_game_stats(self, game):
+        stat_lst = {}
+        for k, v in game[STAT_KEY_QUERY][STAT_CLASS_QUERY].items():
+            stat_lst[k] = getattr(statistics_mod, v[STAT_CLS_TYPE])()
+        return stat_lst
+
     def gather_unlocked_game_info(self, game, variation, difficulty):
         varname = game[GAME_VARIATIONS_QUERY][variation]
         diffnum = game[DIFFICULTY_QUERY][difficulty]
         dct = {GAME_VARIATIONS_QUERY: {varname: [diffnum]}}
+        stat_lst = self.gather_unlocked_game_stats(game)
 
-        stat_lst = {}
-        for k, v in game[STAT_KEY_QUERY][STAT_CLASS_QUERY].items():
-            stat_lst[k] = getattr(statistics_mod, v[STAT_CLS_TYPE])()
-
-        return dct, {GAME_VARIATIONS_QUERY: {varname: stat_lst}}
+        return dct, {GAME_VARIATIONS_QUERY: {varname: {str(difficulty): stat_lst}}}
 
     def gather_unlocked_games(self):
         return_dict = {"games": {}, "stats": {}}
