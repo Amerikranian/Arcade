@@ -161,9 +161,9 @@ class GameDataManager:
         diffnum = game[DIFFICULTY_QUERY][difficulty]
         dct = {GAME_VARIATIONS_QUERY: {varname: [diffnum]}}
 
-        stat_lst = []
+        stat_lst = {}
         for k, v in game[STAT_KEY_QUERY][STAT_CLASS_QUERY].items():
-            stat_lst.append(getattr(statistics_mod, v[STAT_CLS_TYPE])())
+            stat_lst[k] = getattr(statistics_mod, v[STAT_CLS_TYPE])()
 
         return dct, {varname: stat_lst}
 
