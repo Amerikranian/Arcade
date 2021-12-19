@@ -34,7 +34,7 @@ class Ratio(NumericStatistic):
     """A ratio of value / n
     Expects two placeholders if one does not wish to see the percentage, three otherwise"""
 
-    def __init__(self, value, r_digits=3, include_percentage=True):
+    def __init__(self, value=0, r_digits=3, include_percentage=True):
         super().__init__(value, rnd_digits=r_digits)
         self._include_percentage = include_percentage
 

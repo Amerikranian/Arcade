@@ -78,10 +78,7 @@ class HangmanObs(TextGameObserver):
         return self.remaining_guesses == 0
 
     def gather_statistics(self):
-        return {
-            "stat_items": {
-                f"Game conclusion: {'Success' if self.has_won() else 'Failure'}": None,
-                f"Hidden word: {self.text.capitalize()}": None,
-                f"Remaining guesses: {self.remaining_guesses}": None,
-            }
-        }
+        base_stats = super().gather_statistics()
+        base_stats["Hidden word"] = self.text
+        base_stats["Remaining guesses"] = self.remaining_guesses
+        return base_stats

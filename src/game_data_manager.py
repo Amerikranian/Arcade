@@ -23,6 +23,7 @@ STAT_INCLUSION_QUERY = "include_statistics"
 STAT_CLS_TYPE = "cls"
 # Output messages
 STAT_OUTPUT_MSG = "output_msg"
+STAT_ORDER_QUERY = "order_by"
 STAT_CLASS_SUBSET = (STAT_OUTPUT_MSG, STAT_CLS_TYPE)
 # These can be processed without requiring special checks
 DEFAULT_QUERIES = (
@@ -205,3 +206,11 @@ class GameDataManager:
 
     def fetch_game_difficulty_label(self, game, diff):
         return self.fetch_game(game)[DIFFICULTY_LABEL_QUERY][str(diff)]
+
+    def fetch_game_statistic_display_order(self, game):
+        stats = self.fetch_game(game)[STAT_KEY_QUERY][STAT_CLASS_QUERY]
+        return stats.get(STAT_ORDER_QUERY, sorted(stats.keys()))
+
+    def fetch_game_statistic_display_msg(self, game, stat):
+        stats = self.fetch_game(game)[STAT_KEY_QUERY][STAT_CLASS_QUERY]
+        return stats[stat][STAT_OUTPUT_MSG]

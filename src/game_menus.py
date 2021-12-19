@@ -107,15 +107,34 @@ class GameDifficultyMenu(Menu):
 
 
 class StatisticsMenu(Menu):
-    def __init__(self, stat_items, s_intro="", include_statistics=True):
+    def __init__(
+        self, stat_items, variation, difficulty, s_intro="", include_statistics=True
+    ):
         super().__init__()
         self.stat_items = stat_items
+        self.variation = variation
+        self.difficulty = difficulty
         self.s_intro = s_intro
         self.inc_stats = include_statistics
 
     def on_create(self):
-        for k, v in self.stat_items.items():
-            self.add_item(k, v)
+        game_name = self.context.player.fetch_last_game_played()
+        game_stats = self.context.player.fetch_unlocked_game_stats(
+            game_name, self.variation, self.difficulty
+        )
+        display_order = self.context.gdm.fetch_game_statistic_display_order(game_name)
+        for s in display_order:
+            if s in self.stat_items:
+                if s in game_stats:
+                    game_stats[s].update(self.stat_items[s])
+                else:
+                    self.add_item_without_callback(f"{s}: {self.stat_items[s]}")
+                self.stat_items.pop(s)
+
+        # Go through list once again, alphabetically appending any unmarked items
+        for s in sorted(self.stat_items.keys()):
+            self.add_item_without_callback(f"{s}: {self.stat_items[s]}")
+
         if len(self.items) == 0:
             self.exit()
             return

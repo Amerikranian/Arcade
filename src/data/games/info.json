@@ -18,12 +18,12 @@
         "stat_items": {
             "item_descriptions": {
                 "wins": {
-                    "output_msg": "Wins: %s",
-                    "cls": "Number"
+                    "output_msg": "Wins: %s/%s (%s%%)",
+                    "cls": "Ratio"
                 },
                 "losses": {
-                    "output_msg": "Losses: %s",
-                    "cls": "Number"
+                    "output_msg": "Losses: %s/%s (%s%%)",
+                    "cls": "Ratio"
                 }
             }
         }

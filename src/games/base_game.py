@@ -42,7 +42,11 @@ class GameObserver(Observer):
 
     def gather_statistics(self):
         """Called at the end of the game to generate game statistics. Anything is valid as long as keys / values can be dumped into json. The dictionary must contain stat_items, and can also contain s_intro and include_statistics. See StatisticsMenu for further details"""
-        return {"stat_items": {}}
+        return {
+            "wins": int(self.has_won()),
+            "losses": int(self.has_lost()),
+            "Conclusion": "Success" if self.has_won() else "Failure",
+        }
 
     # The next two functions are expected to return quickly and should not involve heavy computation
     # This is because they are called whenever the game is dispatching any events
@@ -62,7 +66,7 @@ class GameObserver(Observer):
         """Called at the end of the game, regardless of win/lose status"""
         pass
 
-    def handle_end(self, game, *args, **kwargs):
+    def handle_end(self, game, variation, difficulty, *args, **kwargs):
         self.run_cleanup()
         if kwargs.get("quit_flag", False):
             game.screen_manager.fetch_screen_from_top(2).exit()
@@ -72,7 +76,11 @@ class GameObserver(Observer):
             self.win()
         else:
             self.lose()
-        game.screen_manager.add_screen(StatisticsMenu(**self.gather_statistics()))
+        game.screen_manager.add_screen(
+            StatisticsMenu(
+                self.gather_statistics(), variation=variation, difficulty=difficulty
+            )
+        )
 
     def handle_menu_quit(self, game, *args, **kwargs):
         game.screen_manager.add_screen(QuitMenu(EVT_GAME_ENDED))
