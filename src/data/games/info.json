@@ -14,7 +14,19 @@
             "Standard"
         ],
         "game_docstring": "No documentation provided.",
-        "unlocked_by_default": false
+        "unlocked_by_default": false,
+        "stat_items": {
+            "item_descriptions": {
+                "wins": {
+                    "output_msg": "Wins: %s",
+                    "cls": "Number"
+                },
+                "losses": {
+                    "output_msg": "Losses: %s",
+                    "cls": "Number"
+                }
+            }
+        }
     },
     "games": {
         "Hangman": {

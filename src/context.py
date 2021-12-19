@@ -23,10 +23,11 @@ class Context:
         # This way we have all file management in one spot and can possibly add a crypto backend, if we make it that far
         self.gdm.load(GAME_INFO_PATH)
         if not os.path.isfile(PLAYER_SAVE_PATH):
-            self.player.set_state(self.gdm.generate_new_player_data())
+            data = self.gdm.generate_new_player_data()
+            self.player.set_game_state(data["games"])
+            self.player.set_stat_state(data["stats"])
         else:
-            # We should at least wrap this seeing as we lack the aforementioned file manager
-            self.player.set_state(json.load(open(PLAYER_SAVE_PATH, "r")))
+            pass
         self.word_db.load(WORD_DB_PATH)
 
     def free_resources(self):

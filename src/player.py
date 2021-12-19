@@ -8,10 +8,14 @@ class Player:
 
     def __init__(self):
         self.game_state = {}
+        self.statistics = {}
         self.last_played_game = ""
 
-    def set_state(self, state):
+    def set_game_state(self, state):
         self.game_state = state
+
+    def set_stat_state(self, state):
+        self.statistics = state
 
     def fetch_unlocked_games(self):
         return self.game_state[GAME_KEY_QUERY].keys()
