@@ -46,14 +46,15 @@ class Player:
                 dct[k] = initial_dict[k].to_json()
         return dct
 
-    def to_json(self, json_indent=4):
-        return json.dumps(
-            {
-                "games": self.game_state,
-                "stats": self._assemble_recursive_stat_dict(self.statistics),
-            },
-            indent=json_indent,
-        )
+    def to_json(self):
+        return {
+            "games": self.game_state,
+            "stats": self._assemble_recursive_stat_dict(self.statistics),
+        }
+
+    def from_json(self, data):
+        data = json.loads(data)
+        self.game_state = data["games"]
 
     def set_last_played_game(self, g):
         self.last_played_game = g

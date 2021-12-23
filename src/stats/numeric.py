@@ -25,7 +25,7 @@ class Mean(NumericStatistic):
         self.n += inc_n
 
     def eval(self):
-        if n == 0:
+        if self.n == 0:
             return 0
         return round(self.value / self.n, self._rnd_digits)
 
@@ -44,7 +44,7 @@ class Ratio(NumericStatistic):
 
     def eval(self):
         if self._include_percentage:
-            if n == 0:
+            if self.n == 0:
                 return 0, 0, 0.0
             return (
                 self.value,
@@ -52,6 +52,6 @@ class Ratio(NumericStatistic):
                 round(self.value / self.n * 100, self._rnd_digits),
             )
         else:
-            if n == 0:
+            if self.n == 0:
                 return 0, 0
             return self.value, self.n
