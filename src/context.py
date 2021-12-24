@@ -1,6 +1,5 @@
 import json
 import os
-from copy import deepcopy
 from game_data_manager import GAME_VARIATIONS_QUERY, GameDataManager
 from player import Player
 from word_db import WordDB
@@ -26,7 +25,7 @@ class Context:
             # Case 1: the argument exists in both dictionaries
             if arg in stat_dict:
                 # We copy the object and assign new attributes
-                stat_obj = deepcopy(stat_dict[arg])
+                stat_obj = stat_dict[arg]()
                 stat_obj.from_json(res)
                 dct[arg] = stat_obj
             # Case 2: res is a dict
@@ -57,7 +56,9 @@ class Context:
             for game in data["games"]:
                 data["stats"][game] = self._dispatch_attrs_to_stats(
                     temp_data["stats"][game],
-                    self.gdm.gather_unlocked_game_diff_stats(self.gdm.fetch_game(game)),
+                    self.gdm.gather_unlocked_game_diff_stats(
+                        self.gdm.fetch_game(game), False
+                    ),
                 )
 
         self.player.set_game_state(data["games"])
