@@ -10,6 +10,10 @@ NODE_RES_LT = 3
 # <=
 NODE_RES_LTQ = 4
 
+# Node types
+NODE_SINGLETYPED = 0
+NODE_ENFORCED_DICT = 1
+
 
 def interpret_node_comp(comp):
     if comp == NODE_RES_EQ:

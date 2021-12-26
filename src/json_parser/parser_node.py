@@ -8,7 +8,80 @@ from .node_constants import (
 )
 
 
-class ParserNode:
+class BaseParserNode:
+    """A basic node class. Should not be used directly--it merely serves as a method of transition"""
+
+    def __init__(self):
+        self.children = {}
+
+    def child_exists(self, child):
+        return child in self.children
+
+    def perform_integrity_check(self, key, data):
+        pass
+
+    def visit(self, data):
+        if isinstance(data, dict) and len(data) > 0:
+            for k, v in data.items():
+                if self.child_exists(k):
+                    self.children[k].visit(v)
+                else:
+                    self.perform_integrity_check(k, v)
+        else:
+            self.perform_integrity_check(None, data)
+
+    def insert_child(self, child_label, child):
+        if self.child_exists(child_label):
+            raise ValueError(
+                'Attempted to insert a nonunique child reference, "%s", into node of type %s and subtype %s'
+                % (child_label, self.node_type, self.node_subtype)
+            )
+        self.children[child_label] = child
+
+    def fetch_child(self, child):
+        if not self.child_exists(child):
+            raise ValueError('Attempted to fetch a nonexistent child, "%s"' % child)
+        return self.children[child]
+
+
+class CallbackNode(BaseParserNode):
+    def __init__(self, clb=None, expected_value=None, match_mode=NODE_RES_EQ):
+        super().__init__()
+        if clb is not None and not callable(clb):
+            raise TypeError(
+                "The provided callback for node with type %s and subtype %s is not callable"
+                % (node_type, node_subtype)
+            )
+        self.comparison_clb = clb
+        self.expected_value = expected_value
+        self.comparison_mode = match_mode
+
+    def perform_integrity_check(self, key, data):
+        if self.comparison_clb is not None:
+            ret_val = self.comparison_clb(data)
+            result = False
+            if self.comparison_mode == NODE_RES_EQ:
+                result = ret_val == self.expected_value
+            elif self.comparison_mode == NODE_RES_GT:
+                result = ret_val > self.expected_value
+            elif self.comparison_mode == NODE_RES_GTQ:
+                result = ret_val >= self.expected_value
+            elif self.comparison_mode == NODE_RES_LT:
+                result = ret_val < self.expected_value
+            elif self.comparison_mode == NODE_RES_LTQ:
+                result = ret_val <= self.expected_value
+            if not result:
+                raise ValueError(
+                    "Custom callback result did not match the expected value. %s %s %s"
+                    % (
+                        ret_val,
+                        interpret_node_comp(self.comparison_mode),
+                        self.expected_value,
+                    )
+                )
+
+
+class SingleTypedNode(CallbackNode):
     """A node validating a JSON query
     Each node may hold any number of distinct references to other children, and each node may have the ability to raise an error during the traversal
     Said references are only validated in their uniqueness for an individual node. It is possible, though not recommended, to have things like "foo/bar/foo/bar/foo"
@@ -33,27 +106,16 @@ class ParserNode:
         expected_value=None,
         match_mode=NODE_RES_EQ,
     ):
+        super().__init__(clb, expected_value, match_mode)
         if node_subtype is not None and node_type is None:
             raise ValueError(
                 "Failed to receive the primary type for a node with subtype of %s"
                 % node_subtype
             )
-        if clb is not None and not callable(clb):
-            raise TypeError(
-                "The provided callback for node with type %s and subtype %s is not callable"
-                % (node_type, node_subtype)
-            )
-        self.children = {}
         self.node_type = node_type
         self.node_subtype = node_subtype
-        self.comparison_clb = clb
-        self.expected_value = expected_value
-        self.comparison_mode = match_mode
 
-    def child_exists(self, child):
-        return child in self.children
-
-    def perform_integrity_check(self, data):
+    def perform_integrity_check(self, key, data):
         if self.node_type is not None and not isinstance(data, self.node_type):
             raise TypeError(
                 "Failed to enforce base data integrity. Found %s, expected %s"
@@ -70,48 +132,33 @@ class ParserNode:
                 "Failed to enforce node subtype for node of type %s. Found %s, expected %s"
                 % (self.node_type, lst_types, self.node_subtype)
             )
-        if self.comparison_clb is not None:
-            ret_val = self.comparison_clb(data)
-            result = False
-            if self.comparison_mode == NODE_RES_EQ:
-                result = ret_val == self.expected_value
-            elif self.comparison_mode == NODE_RES_GT:
-                result = ret_val > self.expected_value
-            elif self.comparison_mode == NODE_RES_GTQ:
-                result = ret_val >= self.expected_value
-            elif self.comparison_mode == NODE_RES_LT:
-                result = ret_val < self.expected_value
-            elif self.comparison_mode == NODE_RES_LTQ:
-                result = ret_val <= self.expected_value
-            if not result:
-                raise ValueError(
-                    "Custom callback result did not match the expected value. %s %s %s"
-                    % (
-                        ret_val,
-                        interpret_node_comp(self.comparison_mode),
-                        self.expected_value,
-                    )
-                )
 
-    def visit(self, data):
-        if isinstance(data, dict):
-            for k, v in data.items():
-                if self.child_exists(k):
-                    self.children[k].visit(v)
-                else:
-                    self.perform_integrity_check(v)
-        else:
-            self.perform_integrity_check(data)
+        super().perform_integrity_check(key, data)
 
-    def insert_child(self, child_label, child):
-        if self.child_exists(child_label):
-            raise ValueError(
-                'Attempted to insert a nonunique child reference, "%s", into node of type %s and subtype %s'
-                % (child_label, self.node_type, self.node_subtype)
+
+class EnforcedDictNode(CallbackNode):
+    def __init__(
+        self,
+        key_type,
+        value_type,
+        clb=None,
+        expected_value=None,
+        match_mode=NODE_RES_EQ,
+    ):
+        super().__init__(clb, expected_value, match_mode)
+        self.key_type = key_type
+        self.value_type = value_type
+
+    def perform_integrity_check(self, key, value):
+        if not isinstance(key, self.key_type):
+            raise TypeError(
+                'The provided key, "%s", is not of the expected type. Found %s, expected %s'
+                % (key, type(key), self.key_type)
             )
-        self.children[child_label] = child
+        if not isinstance(value, self.value_type):
+            raise TypeError(
+                'The provided value for the key %s, "%s", is not of the expected type. Found %s, expected %s'
+                % (key, value, type(value), self.value_type)
+            )
 
-    def fetch_child(self, child):
-        if not self.child_exists(child):
-            raise ValueError('Attempted to fetch a nonexistent child, "%s"' % child)
-        return self.children[child]
+        super().perform_integrity_check(key, value)

@@ -1,4 +1,5 @@
-from .parser_node import ParserNode
+from .node_constants import NODE_ENFORCED_DICT, NODE_SINGLETYPED
+from .parser_node import BaseParserNode, EnforcedDictNode, SingleTypedNode
 
 
 class JSONParser:
@@ -20,14 +21,24 @@ class JSONParser:
         """Builds a chain of nodes exhausting `path`
         as of now, `args` are unpacked and handed to the last node upon creation"""
         if len(path) == 0 or path == "/":
-            return ParserNode(*args)
+            return self.create_nodes_from_args(args)
         else:
             paths = path.split("/", 1)
             prev_path = paths[0]
             new_path = paths[1] if len(paths) == 2 else ""
-            n = ParserNode()
+            n = BaseParserNode()
             n.insert_child(prev_path, self._create_nodes_from_path_stem(new_path, args))
             return n
+
+    def create_nodes_from_args(self, args):
+        cls = args[0]
+        constructor_args = args[1:]
+        if cls == NODE_SINGLETYPED:
+            return SingleTypedNode(*constructor_args)
+        elif cls == NODE_ENFORCED_DICT:
+            return EnforcedDictNode(*constructor_args)
+        else:
+            return BaseParserNode(*constructor_args)
 
     def _fetch_last_matching_node_in_path(self, node, path):
         """Traverses until the path produces a nonexistent node"""
@@ -42,7 +53,7 @@ class JSONParser:
             )
 
     def _create_nodes_from_table(self, data_table):
-        node_obj = ParserNode()
+        node_obj = BaseParserNode()
         for k, v in data_table.items():
             # If this becomes a problem, try and figure out how to add memoization to `self._fetch_last_matching_node_in_path`
             # That or process all the keys with identical stems at once
