@@ -1,6 +1,7 @@
 """Holds all generic menus
 Any game-specific menus should be made in the respective game
 This file should be updated with menus that either don't rely on any game or do not care what game is passed to them"""
+from copy import deepcopy
 import games
 from menu import Menu
 
@@ -30,7 +31,9 @@ class GameListMenu(Menu):
                 )
             self.add_item(
                 self.context.gdm.fetch_game_display_name(game),
-                lambda x: x.screen_manager.add_screen(GameSelectedMenu(game)),
+                lambda x, y: x.screen_manager.add_screen(GameSelectedMenu(y)),
+                game,
+                should_include_self=True,
             )
         self.add_item_without_callback("Go back")
         self.set_intro_message("What would you like to play?")
