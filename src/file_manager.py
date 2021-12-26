@@ -19,8 +19,12 @@ class FileManager:
 
         return data
 
-    def fetch_json(self, filename, read_mode=None):
-        return json.loads(self.fetch_text(filename, read_mode))
+    def fetch_json(self, filename, read_mode=None, expand_primitives=True):
+        data = json.loads(self.fetch_text(filename, read_mode))
+        if expand_primitives:
+            return self._expand_json_keys(data)
+        else:
+            return data
 
     def write_text(self, data, filename, write_mode=None):
         if write_mode is None:
@@ -31,3 +35,20 @@ class FileManager:
 
     def write_json(self, data, filename, write_mode=None):
         self.write_text(json.dumps(data), filename, write_mode)
+
+    def _expand_json_keys(self, data):
+        """Converts the given dictionary keys to primitive types, only integers for now
+        Since json does not automatically cast keys back to their respective types, this function aims to bridge that gap"""
+        dct = {}
+        for k, v in data.items():
+            if k.isdigit():
+                new_k = int(k)
+            else:
+                new_k = k
+            if isinstance(v, dict):
+                res = self._expand_json_keys(v)
+            else:
+                res = v
+            dct[new_k] = res
+
+        return dct
