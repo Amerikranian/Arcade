@@ -1,41 +1,33 @@
 {
     "defaults": {
-        "difficulties": [
-            0,
-            1,
-            2
-        ],
-        "difficulty_labels": {
+        "difficulties": {
             "0": "Easy",
             "1": "Medium",
             "2": "Hard"
         },
-        "game_variations": [
-            "Standard"
-        ],
+        "game_variations": {
+            "0": "Standard"
+        },
         "game_docstring": "No documentation provided.",
         "unlocked_by_default": false,
+        "include_default_diffs": true,
+        "include_default_variations": true,
         "stat_items": {
-            "item_descriptions": {
-                "wins": {
-                    "output_msg": "Wins: %s/%s (%s%%)",
-                    "cls": "Ratio"
-                },
-                "losses": {
-                    "output_msg": "Losses: %s/%s (%s%%)",
-                    "cls": "Ratio"
-                }
+            "wins": {
+                "output_msg": "Wins: %s/%s (%s%%)",
+                "cls": "Ratio"
+            },
+            "losses": {
+                "output_msg": "Losses: %s/%s (%s%%)",
+                "cls": "Ratio"
             }
+        },
+        "stat_settings": {
+            "include_default_statistics": true
         }
     },
     "games": {
         "Hangman": {
-            "game_docstring": "",
-            "game_variations": [],
-            "difficulties": [],
-            "difficulty_labels": {
-                "2": "Super hard"
-            },
             "unlocked_by_default": true
         }
     }

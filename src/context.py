@@ -1,6 +1,7 @@
-import json
-import os
-from game_data_manager import GAME_VARIATIONS_QUERY, GameDataManager
+from constants import DATA_GAME_PATH, DEFAULTS
+from file_manager import FileManager
+from game_data_manager import GameDataManager
+from game_data_parser import GameDataParser
 from player import Player
 from word_db import WordDB
 
@@ -14,6 +15,7 @@ class Context:
     Anything that states need to access on a persistent basis, such as a sound system, should probably go here"""
 
     def __init__(self):
+        self.file_manager = FileManager()
         self.gdm = GameDataManager()
         self.player = Player()
         self.word_db = WordDB()
@@ -31,45 +33,52 @@ class Context:
             # Case 2: res is a dict
             elif isinstance(res, dict):
                 dct[arg] = self._dispatch_attrs_to_stats(res, stat_dict)
-            # Case 3: res is literally anything else
+            # Case 3: res is anything else
             else:
                 raise ValueError(
                     "Failed to match %s as it does not exist within %s"
-                    % (arg, ", ".join(stat_dict.keys()))
+                    % (arg, ", ".join(stat_dict))
                 )
 
         return dct
 
     def load_resources(self):
         """Used to load resources like word database and game information"""
-        # Should probably be changed to offer a more standardize file interface
-        # This way we have all file management in one spot and can possibly add a crypto backend, if we make it that far
-        self.gdm.load(GAME_INFO_PATH)
+        # Load db
+        self.word_db.load(WORD_DB_PATH)
+        initial_data = self.file_manager.fetch_json(GAME_INFO_PATH)
+        # Data integrity check
+        # We only parse data once
+        # The availability of a parser may be changed in the future if we find that it is constantly being used
+        # As of now, though, it stays local
+        parser = GameDataParser()
+        parser.verify_data(initial_data)
+
+        # `initial_data` is guaranteed to have `DATA_GAME_PATH` and `DEFAULTS` due to parser constraint
+        self.gdm.set_default_settings(initial_data[DEFAULTS])
+        self.gdm.set_games(initial_data[DATA_GAME_PATH])
+
         data = {}
-        if not os.path.isfile(PLAYER_SAVE_PATH):
-            data = self.gdm.generate_new_player_data()
+        stats = {}
+        if not self.file_manager.file_exists(PLAYER_SAVE_PATH):
+            data, stats = self.gdm.generate_new_player_data()
         else:
-            with open(PLAYER_SAVE_PATH, "r") as f:
-                temp_data = json.load(f)
-            data["games"] = temp_data.pop("games")
-            data["stats"] = {}
-            for game in data["games"]:
-                data["stats"][game] = self._dispatch_attrs_to_stats(
+            temp_data = self.file_manager.fetch_json(PLAYER_SAVE_PATH)
+            data = temp_data.pop("games")
+            stats = {}
+            for game in data:
+                stats[game] = self._dispatch_attrs_to_stats(
                     temp_data["stats"][game],
-                    self.gdm.gather_unlocked_game_diff_stats(
-                        self.gdm.fetch_game(game), False
-                    ),
+                    self.gdm.gather_unlocked_game_stats(game, False),
                 )
 
-        self.player.set_game_state(data["games"])
-        self.player.set_stat_state(data["stats"])
-        self.word_db.load(WORD_DB_PATH)
+        self.player.set_game_state(data)
+        self.player.set_stat_state(stats)
 
     def export_resources(self):
         """Anything related to saving should go here"""
         data = self.player.to_json()
-        with open(PLAYER_SAVE_PATH, "w") as f:
-            json.dump(data, f, indent=4)
+        self.file_manager.write_json(data, PLAYER_SAVE_PATH)
 
     def free_resources(self):
         """Intended to be used as a method of cleanup for things like sqlite and later sound system"""

@@ -1,7 +1,6 @@
 """Holds all generic menus
 Any game-specific menus should be made in the respective game
 This file should be updated with menus that either don't rely on any game or do not care what game is passed to them"""
-from copy import deepcopy
 import games
 from menu import Menu
 
@@ -31,9 +30,7 @@ class GameListMenu(Menu):
                 )
             self.add_item(
                 self.context.gdm.fetch_game_display_name(game),
-                lambda x, y: x.screen_manager.add_screen(GameSelectedMenu(y)),
-                game,
-                should_include_self=True,
+                lambda x: x.screen_manager.add_screen(GameSelectedMenu(game)),
             )
         self.add_item_without_callback("Go back")
         self.set_intro_message("What would you like to play?")
@@ -121,22 +118,27 @@ class StatisticsMenu(Menu):
         self.inc_stats = include_statistics
 
     def on_create(self):
+        # Preliminaries
         game_name = self.context.player.fetch_last_game_played()
         game_stats = self.context.player.fetch_unlocked_game_stats(
             game_name, self.variation, self.difficulty
         )
         display_order = self.context.gdm.fetch_game_statistic_display_order(game_name)
-        for s in display_order:
-            if s in self.stat_items:
-                if s in game_stats:
-                    game_stats[s].update(self.stat_items[s])
-                else:
-                    self.add_item_without_callback(f"{s}: {self.stat_items[s]}")
-                self.stat_items.pop(s)
 
-        # Go through list once again, alphabetically appending any unmarked items
-        for s in sorted(self.stat_items.keys()):
-            self.add_item_without_callback(f"{s}: {self.stat_items[s]}")
+        # Go through and try to update persistent stats
+        for stat, stat_obj in game_stats.items():
+            if stat in self.stat_items:
+                stat_obj.update(self.stat_items[stat])
+
+        for stat in set([*display_order, *sorted(self.stat_items)]):
+            if stat in game_stats:
+                output_msg = (
+                    self.context.gdm.fetch_game_statistic_display_msg(game_name, stat)
+                    % game_stats[stat].eval()
+                )
+            else:
+                output_msg = f"{stat}: {self.stat_items[stat]}"
+            self.add_item_without_callback(output_msg)
 
         if len(self.items) == 0:
             self.exit()

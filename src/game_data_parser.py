@@ -6,7 +6,7 @@ from constants import (
     REQUIRED_DATA_KEYS,
     REQUIRED_DEFAULTS_KEYS,
     REQUIRED_STAT_KEYS,
-    STAT_GRAMMAR,
+    STAT_DICT_KEY_GRAMMAR,
 )
 from json_parser import JSONParser as JP
 
@@ -21,7 +21,9 @@ class GameDataParser:
         self.parser = JP()
         self.parser.add_parser_node("game_grammar", GAME_GRAMMAR)
         # Due to generic nature of stats, we'll have to go through and verify things by hand
-        self.stat_verification_node = self.parser.create_nodes_from_args(STAT_GRAMMAR)
+        self.stat_verification_node = self.parser.create_nodes_from_args(
+            STAT_DICT_KEY_GRAMMAR
+        )
 
     def verify_data(self, data):
         self._ensure_keys_exist("data", data, REQUIRED_DATA_KEYS)
@@ -63,9 +65,17 @@ class GameDataParser:
             if required_keys is not None:
                 self._ensure_keys_exist(game_name, v, REQUIRED_STAT_KEYS)
 
+    def _verify_recursive_key(self, data, key):
+        key_stems = key.split("/", 1)
+        if key_stems[0] not in data:
+            return False
+        elif len(key_stems) == 2:
+            return self._verify_recursive_key(data[key_stems[0]], key_stems[1])
+        return True
+
     def _ensure_keys_exist(self, name, data, keys):
         for k in keys:
-            if k not in data:
+            if not self._verify_recursive_key(data, k):
                 raise ParserError(
                     f"{name}/{k}", KeyError("The provided key, %s, does not exist" % k)
                 )

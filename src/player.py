@@ -1,5 +1,5 @@
 import json
-from game_data_manager import GAME_KEY_QUERY, GAME_VARIATIONS_QUERY
+from constants import GAME_VARIATIONS
 
 
 class Player:
@@ -18,7 +18,7 @@ class Player:
         self.statistics = state
 
     def fetch_unlocked_games(self):
-        return self.game_state.keys()
+        return list(self.game_state)
 
     def fetch_unlocked_game_variations(self, game):
         if game not in self.game_state:
@@ -26,7 +26,7 @@ class Player:
                 'The provided game, "%s", is not in game state list. Valid options are %s'
                 % (game, ", ".join(self.fetch_unlocked_games()))
             )
-        return self.game_state[game][GAME_VARIATIONS_QUERY].keys()
+        return list(self.game_state[game][GAME_VARIATIONS])
 
     def fetch_unlocked_game_variation_difficulties(self, game, variation):
         vars = self.fetch_unlocked_game_variations(game)
@@ -35,7 +35,7 @@ class Player:
                 'The provided variation for %s, "%s", is not in the game variation list. Valid options are %s'
                 % (game, variation, ", ".join(vars))
             )
-        return self.game_state[game][GAME_VARIATIONS_QUERY][variation]
+        return self.game_state[game][GAME_VARIATIONS][variation]
 
     def _assemble_recursive_stat_dict(self, initial_dict):
         dct = {}
@@ -52,10 +52,6 @@ class Player:
             "stats": self._assemble_recursive_stat_dict(self.statistics),
         }
 
-    def from_json(self, data):
-        data = json.loads(data)
-        self.game_state = data["games"]
-
     def set_last_played_game(self, g):
         self.last_played_game = g
 
@@ -67,5 +63,4 @@ class Player:
             raise ValueError(
                 'The statistics for the requested game, "%s", do not exist' % game
             )
-        diff_key = str(difficulty)
-        return self.statistics[game][GAME_VARIATIONS_QUERY][variation][diff_key]
+        return self.statistics[game][GAME_VARIATIONS][variation][difficulty]

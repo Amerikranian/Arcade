@@ -4,16 +4,12 @@ from screen import Screen
 
 
 class MenuItem:
-    def __init__(
-        self, name, item_callback, callback_args, should_exit, should_include_self
-    ):
+    def __init__(self, name, item_callback, should_exit):
         self.name = name
-        self.callback_args = callback_args
-        # Callbacks must accept at least one parameter, the menu instance
+        # Callbacks must accept one parameter, the menu instance
         # Callbacks can also be None, in which case the menu item could either exit or do nothing
         self.item_callback = item_callback
         self.should_exit = should_exit
-        self.should_include_self = should_include_self
 
     def __repr__(self):
         return self.name
@@ -22,10 +18,7 @@ class MenuItem:
         if self.should_exit:
             menu_instance.exit()
         if self.item_callback is not None:
-            if self.should_include_self:
-                self.item_callback(menu_instance, self.callback_args)
-            else:
-                self.item_callback(menu_instance)
+            self.item_callback(menu_instance)
 
 
 class Menu(Screen):
@@ -38,26 +31,17 @@ class Menu(Screen):
     def set_intro_message(self, msg):
         self.intro_message = msg
 
-    def add_item(
-        self,
-        name,
-        callback,
-        callback_args=None,
-        should_exit=False,
-        should_include_self=False,
-    ):
+    def add_item(self, name, callback, should_exit=False):
         if callback is not None and not callable(callback):
             raise ValueError(
                 "The provided item, %s, must have a callable callback or be `None`"
                 % name
             )
-        self.items.append(
-            MenuItem(name, callback, callback_args, should_exit, should_include_self)
-        )
+        self.items.append(MenuItem(name, callback, should_exit))
 
     def add_item_without_callback(self, name, should_exit=True):
         # A shortcut for adding the "Go back" option or alike
-        self.add_item(name, None, should_exit=should_exit)
+        self.add_item(name, None, should_exit)
 
     def add_items(self, items):
         for k, v in items.items():

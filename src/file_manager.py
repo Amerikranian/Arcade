@@ -1,3 +1,4 @@
+import os
 import json
 
 
@@ -9,6 +10,9 @@ class FileManager:
     def __init__(self, read_mode="r", write_mode="w"):
         self.read_mode = read_mode
         self.write_mode = write_mode
+
+    def file_exists(self, path):
+        return os.path.isfile(path)
 
     def fetch_text(self, filename, read_mode=None):
         if read_mode is None:
@@ -33,8 +37,14 @@ class FileManager:
         with open(filename, write_mode) as f:
             f.write(data)
 
-    def write_json(self, data, filename, write_mode=None):
-        self.write_text(json.dumps(data), filename, write_mode)
+    def write_json(
+        self, data, filename, write_mode=None, indent_level=4, key_sort=True
+    ):
+        self.write_text(
+            json.dumps(data, indent=indent_level, sort_keys=key_sort),
+            filename,
+            write_mode,
+        )
 
     def _expand_json_keys(self, data):
         """Converts the given dictionary keys to primitive types, only integers for now
