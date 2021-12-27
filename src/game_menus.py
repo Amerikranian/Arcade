@@ -130,7 +130,10 @@ class StatisticsMenu(Menu):
             if stat in self.stat_items:
                 stat_obj.update(self.stat_items[stat])
 
-        for stat in set([*display_order, *sorted(self.stat_items)]):
+        for stat in [
+            *display_order,
+            *sorted(i for i in self.stat_items if i not in display_order),
+        ]:
             if stat in game_stats:
                 output_msg = (
                     self.context.gdm.fetch_game_statistic_display_msg(game_name, stat)
