@@ -78,7 +78,7 @@ class GameVariationMenu(Menu):
             self.add_item(
                 v,
                 lambda x: self.screen_manager.add_screen(GameDifficultyMenu(v)),
-                True,
+                should_exit=True,
             )
 
         self.add_item_without_callback("Go back")
@@ -101,7 +101,7 @@ class GameDifficultyMenu(Menu):
                 lambda x: x.screen_manager.add_screen(
                     getattr(games, game_name)(self.variation, d)
                 ),
-                True,
+                should_exit=True,
             )
 
         self.add_item_without_callback("Go back")
@@ -173,7 +173,7 @@ class QuitMenu(Menu):
             lambda x: x.screen_manager.fetch_screen_from_top(2).send_notification(
                 self.evt_type, quit_flag=True
             ),
-            True,
+            should_exit=True,
         )
         self.add_item_without_callback("No")
         self.set_intro_message("Are you sure you would like to quit?")
