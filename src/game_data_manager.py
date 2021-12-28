@@ -61,11 +61,15 @@ class GameDataManager:
         game_dict = {GAME_VARIATIONS: {varname: [difficulty]}}
         return game_dict
 
-    def gather_unlocked_games(self):
+    def gather_unlocked_games(self, excluded_games=None):
         games = {}
         statistics = {}
+        if excluded_games is not None:
+            game_keys = [k for k in self.games if k not in excluded_games]
+        else:
+            game_keys = list(self.games)
 
-        for g in self.games:
+        for g in game_keys:
             # We should probably do some error checks here for empty diffs / variations and such
             if self.games[g].get(GAME_UNLOCKED, self.default_settings[GAME_UNLOCKED]):
                 # We arbitrarily unlock first variation / difficulty

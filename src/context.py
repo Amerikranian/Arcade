@@ -72,6 +72,13 @@ class Context:
                     self.gdm.gather_unlocked_game_stats(game, False),
                 )
 
+            # Update player data with any new unlocked by default games
+            new_game_data, new_game_statistics = self.gdm.gather_unlocked_games(
+                list(data)
+            )
+            data.update(new_game_data)
+            stats.update(new_game_statistics)
+
         self.player.set_game_state(data)
         self.player.set_stat_state(stats)
 

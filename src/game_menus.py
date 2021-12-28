@@ -30,7 +30,9 @@ class GameListMenu(Menu):
                 )
             self.add_item(
                 self.context.gdm.fetch_game_display_name(game),
-                lambda x: x.screen_manager.add_screen(GameSelectedMenu(game)),
+                lambda x, y: x.screen_manager.add_screen(GameSelectedMenu(y)),
+                game,
+                should_include_self=True,
             )
         self.add_item_without_callback("Go back")
         self.set_intro_message("What would you like to play?")
