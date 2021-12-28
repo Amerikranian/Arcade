@@ -2,16 +2,60 @@
 ## What is this?
 The goal of this is to provide an example of what to do (or don't as you see fit) in creating a collection of standalone games using [state](https://en.wikipedia.org/wiki/State_pattern) and [Observer](https://en.wikipedia.org/wiki/Observer_pattern) patterns. The idea sprang up from the discontinuation of [Brain Station](https://l-works.net/brainstation.php) and thus the framework is aimed at fulfilling this goal, but it should be flexible enough to allow one to make whatever they please.
 ## Is this stable?
-Until some games have been made (I am still in the preliminary stage of figuring out how everything is going to work) expect things to change as I run into unexpected problems. In particular, games are still iffy, relying on the observer model and lacking the ability to modify state stack. This is not an issue for word games but may be a problem for something a bit more complex.
+In a manner of speaking, yes. There should not be anymore breaking changes to the code. Though the contents of files may alter, I will try and preserve any old functions in order to maintain compatibility. Should a change occur, I will do my best to provide ample warnings before removing old code
 ## What is left?
-- Writing a parser for game data and thereby implementing saving / loading
-- Adding a way to keep track of game statistics split by variation and difficulty
+- Adding some semblance of word complexity, perhaps based on Scrabble rules
+- Adding logging capability, be it for errors or general info
+- Adding graceful cleanup upon application errors
 - Adding sound support, probably in the form of an observer
+- Figuring out a way to unlock games (A shop? Achievements? Something that functions as a mix of the two?)
+- Writing a CLI tool that can modify game JSON
 - Actually writing games
-## What about sounds?
-Since this is an experiment, I do not think that an official set of sounds is going to be provided here. However, I do intend to eventually provide a sound backend so users can just add sounds  and play them with minimal effort.
 ## What about actually having a list of words?
-I wrote a script to scrape [Merriam Webster's Dictionary](https://www.merriam-webster.com/). I can't guarantee how, uh, up to date the words we get are because some of them are quite strange, but it will do. I will eventually add the word list as a db which users can query with [sqlite3](https://docs.python.org/3/library/sqlite3.html)
+I wrote a script to scrape [Merriam Webster's Dictionary](https://www.merriam-webster.com/). I can't guarantee how, uh, up to date the words we get are because some of them are quite strange, but it will do.
+## What is the general game development workflow?
+Game additions occur in three steps
+1. Adding game definitions to info.json within *data/games* directory
+2. Creating the respective file within the *games* directory. Your game's class name must match the created JSON key! Your class must also take exactly two arguments, game variation and difficulty
+3. Importing the game into __init__.py of the *games* directory. Said import must result in the actual class being accessible within the games module.
+### A sample game
+#### JSON
+Since we currently lack the ability to unlock games, below is the simplest definition you could have for your game. Said definition must be pasted within info.json under *games* key.
+```JSON
+"SampleGame": {
+    "unlocked_by_default": true
+}
+```
+#### Game code
+Create a file within the games directory with any desired name and populate it like so:
+```python
+from .base_game import game
+
+
+class SampleGame(Game):
+    def __init__(self, variation, difficulty):
+        super().__init__(self, variation, difficulty)
+        # Your code below
+```
+Keep in mind that you have access to the entirety of the methods within the Screen class. If you wish to use the ObservableGame class, the procedure is almost identical
+```python
+from .observable_game import ObservableGame, GameObserver
+
+
+class SampleGame(ObservableGame):
+    def __init__(self, variation, difficulty):
+        super().__init__(variation, difficulty)
+        self.add_observer(YourObserver())
+        # More code below
+```
+See GameObserver class for more details
+#### Adding the game to the games module
+modify `__init__.py` in the games directory by adding this line
+```python
+from your_sample_game_filename import SampleGame
+```
+### The end
+Regardless of what method you chose (working with the game class directly or using observers) you should be able to play your game now. Look in constants.py to see what kind of data you can alter about the SampleGame, and check out Hangman for a longer observer-oriented example
 ## What games do you have planned?
 - Anagrams
 - Hangman
@@ -20,7 +64,7 @@ I wrote a script to scrape [Merriam Webster's Dictionary](https://www.merriam-we
 - Word Search
 - And probably some more as I work on this
 ## Can I help?
-Sure. Pull requests and suggestions are welcomed. Discussion is encouraged. Like I said, half of this is me figuring it out. You can suggest games even, but I would wait to do so until I cement how this all is going to work
+Sure. Pull requests and suggestions are welcomed. Discussion is encouraged. Like I said, half of this is me figuring it out. I would appreciate opening issues before opening pull requests. Said requests must also be properly formatted (use black).
 ## Wait... no typing?
 Typing will be added... eventually. Bare with me, please.
 ## Wait... Where are the docs!
