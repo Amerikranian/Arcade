@@ -1,6 +1,6 @@
 import pygame
 import re
-from .base_game import Game, GameObserver
+from .observable_game import ObservableGame, GameObserver
 
 DEFAULT_MATCH_RE = "^.+$"
 EVT_UNICODE = "text_unicode"
@@ -8,7 +8,7 @@ EVT_TEXT_SUBMIT = "text_submit"
 EVT_SCROLL = "text_scroll"
 
 
-class TextGame(Game):
+class TextGame(ObservableGame):
     """A class designed to simplify creation of text-based games, such as hangman"""
 
     def handle_input(self, delta, input_state):

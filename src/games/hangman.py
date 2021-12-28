@@ -10,7 +10,8 @@ EVT_GUESS_CHECK = "guess_check"
 
 class Hangman(TextGame):
     def __init__(self, variation, difficulty):
-        super().__init__(variation, difficulty, HangmanObs())
+        super().__init__(variation, difficulty)
+        self.add_observer(HangmanObs())
 
     def handle_input(self, delta, input_state):
         super().handle_input(delta, input_state)
