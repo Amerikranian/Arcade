@@ -27,6 +27,9 @@
         }
     },
     "games": {
+        "CelestialSlide": {
+            "unlocked_by_default": true
+        },
         "Hangman": {
             "unlocked_by_default": true
         }
