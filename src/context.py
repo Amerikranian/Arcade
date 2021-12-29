@@ -1,5 +1,4 @@
 from constants import DATA_GAME_PATH, DEFAULTS
-from file_manager import FileManager
 from game_data_manager import GameDataManager
 from game_data_parser import GameDataParser
 from player import Player
@@ -14,8 +13,8 @@ class Context:
     """A class mainly used as an injection method.
     Anything that states need to access on a persistent basis, such as a sound system, should probably go here"""
 
-    def __init__(self):
-        self.file_manager = FileManager()
+    def __init__(self, file_mgr):
+        self.file_manager = file_mgr
         self.gdm = GameDataManager()
         self.player = Player()
         self.word_db = WordDB()
