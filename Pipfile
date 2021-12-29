@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+black = "==21.11b1"
+cytolk = "==0.1.11"
+pygame = "==2.1.0"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
