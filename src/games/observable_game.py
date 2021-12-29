@@ -60,6 +60,8 @@ class GameObserver(Observer):
     """
 
     def fetch_dynamic_attr(self, attr, variation):
+        # Make variation a valid match string
+        variation = variation.lower().replace(" ", "_")
         func_list = []
         # We support logic functions that look like handle_partial_submit, where submit is event type and partial is the game varient
         # The downside to this is needing to update code when the variation is renamed

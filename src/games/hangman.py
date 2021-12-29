@@ -32,7 +32,7 @@ class HangmanObs(TextGameObserver):
         self.remaining_guesses = 10
         return False
 
-    def handle_Standard_text_unicode(self, game, char, difficulty, *args, **kwargs):
+    def handle_text_unicode(self, game, char, difficulty, *args, **kwargs):
         # We override this because Hangman handles letters differently
         if not self.is_char_matching(char):
             return True
