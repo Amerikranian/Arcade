@@ -60,26 +60,32 @@ class GameObserver(Observer):
     """
 
     def fetch_dynamic_attr(self, attr, variation):
-        # If the variation is empty, no point in constructing event query
-        if variation == "":
-            return super().fetch_dynamic_attr(attr)
-
-        # We support logic functions that look like handle_submit_partial, where submit is event type and partial is the game varient
+        func_list = []
+        # We support logic functions that look like handle_partial_submit, where submit is event type and partial is the game varient
         # The downside to this is needing to update code when the variation is renamed
         # The alternative was to treat variations as integers
-        attr_name = f"handle_{attr}_{variation}"
+        if len(variation) > 0:
+            attr_var_name = f"handle_{variation}_{attr}"
+            if hasattr(self, attr_var_name):
+                func_list.append(getattr(self, attr_var_name))
+        attr_name = f"handle_{attr}"
         if hasattr(self, attr_name):
-            return getattr(self, attr_name)
-        return super().fetch_dynamic_attr(attr)
+            func_list.append(getattr(self, attr_name))
+
+        if len(func_list) == 0:
+            return [self.handle_event]
+        else:
+            return func_list
 
     def notify(self, event_type, *args, **kwargs):
         if "game" in kwargs:
             context = kwargs.pop("game")
         else:
             context = None
-        self.fetch_dynamic_attr(event_type, kwargs.get("variation", ""))(
-            context, *args, **kwargs
-        )
+        func_list = self.fetch_dynamic_attr(event_type, kwargs.get("variation", ""))
+        for f in func_list:
+            if f(context, *args, **kwargs):
+                break
 
     def has_ended(self):
         """Determines whether the given game has come to a conclusion"""
