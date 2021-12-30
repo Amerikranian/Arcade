@@ -5,7 +5,9 @@ import time
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import cytolk.tolk as tolk
 import pygame
+
 import games
+
 from file_manager import FileManager
 from game_menus import MainMenu
 from screen_manager import ScreenManager
@@ -25,6 +27,7 @@ def main():
     while sm.has_screens():
         delta = c.tick(60) / 1000
         sm.update(delta)
+        ctx.sounds.update()
 
     ctx.export_resources()
     ctx.free_resources()

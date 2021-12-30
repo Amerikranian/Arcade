@@ -1,3 +1,6 @@
+import synthizer
+
+from audio import BufferCache, SoundManager
 from constants import DATA_GAME_PATH, DEFAULTS
 from game_data_manager import GameDataManager
 from game_data_parser import GameDataParser
@@ -18,6 +21,7 @@ class Context:
         self.gdm = GameDataManager()
         self.player = Player()
         self.word_db = WordDB()
+        self.sounds = None  # will be set when load_resources is called. Make this better at some point
 
     def _dispatch_attrs_to_stats(self, arg_dict, stat_dict):
         """Upon load, recreate the objects in the save file"""
@@ -81,6 +85,10 @@ class Context:
         self.player.set_game_state(data)
         self.player.set_stat_state(stats)
 
+        synthizer.initialize()
+        synthizer_context = synthizer.Context(enable_events=True)
+        self.sounds = SoundManager(synthizer_context, BufferCache(self.file_manager))
+
     def export_resources(self):
         """Anything related to saving should go here"""
         data = self.player.to_json()
@@ -89,3 +97,4 @@ class Context:
     def free_resources(self):
         """Intended to be used as a method of cleanup for things like sqlite and later sound system"""
         self.word_db.close()
+        synthizer.shutdown()
