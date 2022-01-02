@@ -130,3 +130,6 @@ dmypy.json
 
 # Player save data
 src/data/save.json
+
+# Pipfile
+Pipfile

@@ -1,6 +1,8 @@
 import os
 import json
 
+from synthizer import Buffer
+
 
 class FileManager:
     """A dummy class mostly used to offer the ability to swap file access interfaces.
@@ -62,3 +64,6 @@ class FileManager:
             dct[new_k] = res
 
         return dct
+
+    def get_buffer(self, path):
+        return Buffer.from_file(path)

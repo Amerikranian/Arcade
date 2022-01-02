@@ -1,3 +1,5 @@
+from os.path import join
+
 from screen import Screen
 
 
@@ -13,3 +15,11 @@ class Game(Screen):
         super().__init__()
         self.variation = variation
         self.difficulty = difficulty
+
+    def play(self, path, **kwargs):
+        self.context.sounds.play(join("Sounds", path), **kwargs)
+
+    def play_from_dir(self, path, **kwargs):
+        self.context.sounds.play(
+            join("Sounds", self.context.player.last_played_game, path), **kwargs
+        )
