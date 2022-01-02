@@ -133,3 +133,6 @@ src/data/save.json
 
 # Pipfile
 Pipfile
+
+# Logs
+logs/
