@@ -1,5 +1,5 @@
 from os.path import join
-
+from constants import DEFAULT_SOUND_DIR, DEFAULT_SOUND_EXT
 from screen import Screen
 
 
@@ -17,9 +17,18 @@ class Game(Screen):
         self.difficulty = difficulty
 
     def play(self, path, **kwargs):
-        self.context.sounds.play(join("Sounds", path), **kwargs)
+        if ext is None:
+            ext = DEFAULT_SOUND_EXT
+        self.context.sounds.play(join(DEFAULT_SOUND_DIR, path + ext), **kwargs)
 
-    def play_from_dir(self, path, **kwargs):
+    def play_from_dir(self, path, ext=None, **kwargs):
+        if ext is None:
+            ext = DEFAULT_SOUND_EXT
         self.context.sounds.play(
-            join("Sounds", self.context.player.last_played_game, path), **kwargs
+            join(
+                DEFAULT_SOUND_DIR,
+                self.context.player.fetch_last_game_played(),
+                path + ext,
+            ),
+            **kwargs
         )

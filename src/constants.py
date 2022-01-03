@@ -8,6 +8,10 @@ from json_parser.node_constants import (
     NODE_SINGLETYPED,
 )
 
+# Sound stuff
+DEFAULT_SOUND_DIR = "Sounds"
+DEFAULT_SOUND_EXT = ".ogg"
+
 # Storage for default settings
 DEFAULTS = "defaults"
 # Game difficulty

@@ -30,33 +30,33 @@ class HangmanObs(TextGameObserver):
     def handle_start(self, game, *args, **kwargs):
         self.text = game.context.word_db.fetch_random_word(4, 8)
         self.remaining_guesses = 10
-        return False
+        return True
 
     def handle_text_unicode(self, game, char, difficulty, *args, **kwargs):
         # We override this because Hangman handles letters differently
         if not self.is_char_matching(char):
-            return True
+            return False
         # We forgive letter repetitions on easy
         if char in self.guessed_letters and difficulty == 0:
             tolk.output("You already guessed that!")
-            return False
+            return True
         self.guessed_letters.add(char)
         if char not in self.text:
             self.remaining_guesses -= 1
             tolk.output("No such luck.", True)
         else:
             self.announce_word()
-        return False
+        return True
 
     def handle_text_scroll(self, game, *args, **kwargs):
         if not super().handle_text_scroll(game, *args, **kwargs):
-            return True
+            return False
         tolk.output(self.fetch_word_character(self.text[self.cursor]))
-        return False
+        return True
 
     def handle_word_check(self, game, *args, **kwargs):
         tolk.output("".join(self.fetch_word_character(i) for i in self.text))
-        return False
+        return True
 
     def handle_guess_check(self, game, *args, **kwargs):
         tolk.output(

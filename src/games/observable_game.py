@@ -86,7 +86,7 @@ class GameObserver(Observer):
             context = None
         func_list = self.fetch_dynamic_attr(event_type, kwargs.get("variation", ""))
         for f in func_list:
-            if f(context, *args, **kwargs):
+            if not f(context, *args, **kwargs):
                 break
 
     def has_ended(self):

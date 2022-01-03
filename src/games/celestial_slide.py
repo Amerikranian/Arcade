@@ -57,6 +57,8 @@ class CelestialSlideObs(GridGameObserver):
             )
             self.position = new_position
             tolk.output("*Sliding sound*")
+            return True
+        return False
 
     def handle_grid_submit(self, game, *args, **kwargs):
         if self.grid[:-1] == self.initial_sequence:
@@ -64,6 +66,7 @@ class CelestialSlideObs(GridGameObserver):
             self.state = GameStateEnum.won
         else:
             tolk.output("Incomplete")
+        return True
 
     def has_won(self):
         return self.state == GameStateEnum.won

@@ -16,12 +16,12 @@ class Context:
     """A class mainly used as an injection method.
     Anything that states need to access on a persistent basis, such as a sound system, should probably go here"""
 
-    def __init__(self, file_mgr):
+    def __init__(self, file_mgr, snd_mgr):
         self.file_manager = file_mgr
         self.gdm = GameDataManager()
         self.player = Player()
         self.word_db = WordDB()
-        self.sounds = None  # will be set when load_resources is called. Make this better at some point
+        self.sounds = snd_mgr
 
     def _dispatch_attrs_to_stats(self, arg_dict, stat_dict):
         """Upon load, recreate the objects in the save file"""
@@ -85,10 +85,6 @@ class Context:
         self.player.set_game_state(data)
         self.player.set_stat_state(stats)
 
-        synthizer.initialize()
-        synthizer_context = synthizer.Context(enable_events=True)
-        self.sounds = SoundManager(synthizer_context, BufferCache(self.file_manager))
-
     def export_resources(self):
         """Anything related to saving should go here"""
         data = self.player.to_json()
@@ -97,4 +93,3 @@ class Context:
     def free_resources(self):
         """Intended to be used as a method of cleanup for things like sqlite and later sound system"""
         self.word_db.close()
-        synthizer.shutdown()

@@ -1,4 +1,4 @@
 black==21.11b1
 cytolk==0.1.11
 pygame==2.1.0
-synthizer==0.11.6
+synthizer==0.12.1

@@ -32,6 +32,9 @@
         },
         "Hangman": {
             "unlocked_by_default": true
+        },
+        "Jotto": {
+            "unlocked_by_default": true
         }
     }
 }
