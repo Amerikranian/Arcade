@@ -135,4 +135,4 @@ src/data/save.json
 Pipfile
 
 # Logs
-logs/
+src/logs/
