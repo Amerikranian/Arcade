@@ -10,7 +10,7 @@ from json_parser.node_constants import (
 
 # Sound stuff
 DEFAULT_SOUND_DIR = "Sounds"
-DEFAULT_SOUND_EXT = ".ogg"
+DEFAULT_SOUND_EXT = ".mp3"
 
 # Storage for default settings
 DEFAULTS = "defaults"

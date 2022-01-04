@@ -3,6 +3,7 @@ import synthizer
 from synthizer import (
     Buffer,
     BufferGenerator,
+    StreamingGenerator,
     Context,
     DirectSource,
     Generator,
@@ -72,16 +73,23 @@ class SoundManager:
         while len(self.sounds) > 0:
             self.unregister_sound(self.sounds[0])
 
-    def play(self, path, **kwargs):
+    def play(self, path, stream=False, **kwargs):
         if not kwargs:
             kwargs = self.defaults
-        buffer = self.buffer_cache.get_buffer(path)
-        generator = BufferGenerator(self.synthizer_context)
-        generator.buffer.value = buffer
+        if not stream:
+            buffer = self.buffer_cache.get_buffer(path)
+            generator = BufferGenerator(self.synthizer_context)
+            generator.buffer.value = buffer
+        else:
+            buffer = None
+            generator = StreamingGenerator.from_file(self.synthizer_context, path)
         sound = Sound(self.synthizer_context, generator, buffer, **kwargs)
         sound.play()
         self.register_sound(sound)
         return sound
+
+    def stream(self, path, **kwargs):
+        return self.play(path, True, **kwargs)
 
     def set_position(self, position):
         self.synthizer_context.position = position

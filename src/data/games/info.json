@@ -35,6 +35,9 @@
         },
         "Jotto": {
             "unlocked_by_default": true
+        },
+        "Memory": {
+            "unlocked_by_default": true
         }
     }
 }
