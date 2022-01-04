@@ -32,3 +32,20 @@ class Game(Screen):
             ),
             **kwargs
         )
+
+    def stream(self, path, **kwargs):
+        if ext is None:
+            ext = DEFAULT_SOUND_EXT
+        self.context.sounds.stream(join(DEFAULT_SOUND_DIR, path + ext), **kwargs)
+
+    def stream_from_dir(self, path, ext=None, **kwargs):
+        if ext is None:
+            ext = DEFAULT_SOUND_EXT
+        self.context.sounds.stream(
+            join(
+                DEFAULT_SOUND_DIR,
+                self.context.player.fetch_last_game_played(),
+                path + ext,
+            ),
+            **kwargs
+        )
