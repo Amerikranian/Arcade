@@ -19,6 +19,35 @@ LOGGER_DIR = "logs"
 LOGGER_FMT = "%Y/%m/%d %H:%M:%S"
 
 
+def init():
+    if not os.path.isdir(LOGGER_DIR):
+        os.mkdir(LOGGER_DIR)
+    # Make valid filename stem
+    PARTIAL_FILE_STEM = time.strftime(LOGGER_FMT).replace("/", "-").replace(":", "-")
+    logging.basicConfig(
+        filename=f"{LOGGER_DIR}/{PARTIAL_FILE_STEM}.log",
+        encoding="utf-8",
+        format="%(asctime)s %(levelname)s: %(module)s %(message)s",
+        datefmt=LOGGER_FMT,
+        level=logging.DEBUG,
+    )
+
+    pygame.init()
+    w = pygame.display.set_mode((720, 480))
+    pygame.display.set_caption("Testing Stuff")
+    tolk.load()
+
+    with synthizer.initialized():
+        main()
+
+    shutdown()
+
+
+def shutdown():
+    tolk.unload()
+    pygame.quit()
+
+
 def main():
     c = pygame.time.Clock()
     fm = FileManager()
@@ -38,25 +67,4 @@ def main():
 
 
 if __name__ == "__main__":
-    if not os.path.isdir(LOGGER_DIR):
-        os.mkdir(LOGGER_DIR)
-    # Make valid filename stem
-    partial_file_stem = time.strftime(LOGGER_FMT).replace("/", "-").replace(":", "-")
-    logging.basicConfig(
-        filename=f"{LOGGER_DIR}/{partial_file_stem}.log",
-        encoding="utf-8",
-        format="%(asctime)s %(message)s",
-        datefmt=LOGGER_FMT,
-        level=logging.DEBUG,
-    )
-
-    pygame.init()
-    w = pygame.display.set_mode((720, 480))
-    pygame.display.set_caption("Testing Stuff")
-    tolk.load()
-
-    with synthizer.initialized():
-        main()
-
-    tolk.unload()
-    pygame.quit()
+    init()

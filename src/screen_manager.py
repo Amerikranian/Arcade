@@ -1,5 +1,8 @@
+import logging
 from keyboard import Keyboard
 from screen import Screen, IS_ACTIVE
+
+logger = logging.getLogger(__name__)
 
 
 class ScreenManager:
