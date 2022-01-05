@@ -6,6 +6,7 @@ from .base_game import Game
 EVT_GAME_STARTED = "start"
 EVT_GAME_ENDED = "end"
 EVT_REQUEST_QUIT = "menu_quit"
+EVT_GAME_UPDATE = "frame_update"
 
 
 class ObservableGame(Game):
@@ -46,6 +47,11 @@ class ObservableGame(Game):
     def on_create(self):
         """Quick wrapper to send out start event"""
         self.send_notification(EVT_GAME_STARTED)
+
+    def update(self, delta, is_covered_by_another_screen):
+        super().update(delta, is_covered_by_another_screen)
+        if not is_covered_by_another_screen:
+            self.send_notification(EVT_GAME_UPDATE, delta=delta)
 
     def handle_input(self, delta, input_state):
         """Generic game keys"""
