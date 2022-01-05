@@ -29,7 +29,7 @@ Since we currently lack the ability to unlock games, below is the simplest defin
 #### Game code
 Create a file within the games directory with any desired name and populate it like so:
 ```python
-from .base_game import game
+from .base_game import Game
 
 
 class SampleGame(Game):
