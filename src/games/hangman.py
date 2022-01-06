@@ -28,6 +28,7 @@ class HangmanObs(TextGameObserver):
         self.guessed_letters = set()
 
     def handle_start(self, game, *args, **kwargs):
+        super().handle_start(game, *args, **kwargs)
         self.text = game.context.word_db.fetch_random_word(4, 8)
         self.remaining_guesses = 10
         return True
@@ -43,9 +44,18 @@ class HangmanObs(TextGameObserver):
         self.guessed_letters.add(char)
         if char not in self.text:
             self.remaining_guesses -= 1
-            tolk.output("No such luck.", True)
+
+            if self.remaining_guesses == 0:
+                self.set_lose_state()
+            else:
+                tolk.output("No such luck.", True)
+
         else:
-            self.announce_word()
+            if all(l in self.guessed_letters for l in self.text):
+                self.set_win_state()
+            else:
+                self.announce_word()
+
         return True
 
     def handle_text_scroll(self, game, *args, **kwargs):
@@ -73,12 +83,6 @@ class HangmanObs(TextGameObserver):
         return min(
             super().calculate_cursor_offset(self.cursor, direction), len(self.text) - 1
         )
-
-    def has_won(self):
-        return all(l in self.guessed_letters for l in self.text)
-
-    def has_lost(self):
-        return self.remaining_guesses == 0
 
     def gather_statistics(self):
         base_stats = super().gather_statistics()

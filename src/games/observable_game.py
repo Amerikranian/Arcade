@@ -2,6 +2,7 @@ import pygame
 from game_menus import QuitMenu, StatisticsMenu
 from observer import Observer
 from .base_game import Game
+from .game_utils import GenericGameStateEnum
 
 EVT_GAME_STARTED = "start"
 EVT_GAME_ENDED = "end"
@@ -65,6 +66,9 @@ class GameObserver(Observer):
     Event handlers must be able to accept game as their first parameter
     """
 
+    def __init__(self):
+        self.game_state = GenericGameStateEnum.undefined
+
     def fetch_dynamic_attr(self, attr, variation):
         # Make variation a valid match string
         variation = variation.lower().replace(" ", "_")
@@ -95,6 +99,9 @@ class GameObserver(Observer):
             if not f(context, *args, **kwargs):
                 break
 
+    def handle_start(self, game, *args, **kwargs):
+        self.game_state = GenericGameStateEnum.running
+
     def has_ended(self):
         """Determines whether the given game has come to a conclusion"""
         return self.has_won() or self.has_lost()
@@ -107,13 +114,17 @@ class GameObserver(Observer):
             "Conclusion": "Success" if self.has_won() else "Failure",
         }
 
-    # The next two functions are expected to return quickly and should not involve heavy computation
-    # This is because they are called whenever the game is dispatching any events
     def has_lost(self):
-        return False
+        return self.game_state == GenericGameStateEnum.lost
 
     def has_won(self):
-        return False
+        return self.game_state == GenericGameStateEnum.won
+
+    def set_lose_state(self):
+        self.game_state = GenericGameStateEnum.lost
+
+    def set_win_state(self):
+        self.game_state = GenericGameStateEnum.won
 
     def win(self):
         pass
@@ -121,12 +132,12 @@ class GameObserver(Observer):
     def lose(self):
         pass
 
-    def run_cleanup(self):
+    def run_cleanup(self, game):
         """Called at the end of the game, regardless of win/lose status"""
         pass
 
     def handle_end(self, game, variation, difficulty, *args, **kwargs):
-        self.run_cleanup()
+        self.run_cleanup(game)
         if kwargs.get("quit_flag", False):
             game.screen_manager.fetch_screen_from_top(2).exit()
             return

@@ -3,8 +3,6 @@ import random
 import cytolk.tolk as tolk
 import pygame
 
-from enum import Enum
-
 from .grid_game import GridGame, GridGameObserver, LEFT, RIGHT, UP, DOWN
 
 
@@ -30,9 +28,9 @@ class CelestialSlideObs(GridGameObserver):
         self.grid = self.initial_sequence.copy()
         random.shuffle(self.grid)
         self.grid.append(None)
-        self.state = GameStateEnum.running
 
     def handle_start(self, game, *args, **kwargs):
+        super().handle_start(game, *args, **kwargs)
         tolk.output("Welcome!")
 
     def handle_grid_scroll(self, game, direction, *args, **kwargs):
@@ -62,20 +60,7 @@ class CelestialSlideObs(GridGameObserver):
 
     def handle_grid_submit(self, game, *args, **kwargs):
         if self.grid[:-1] == self.initial_sequence:
-            tolk.output("Complete")
-            self.state = GameStateEnum.won
+            self.set_win_state()
         else:
             tolk.output("Incomplete")
         return True
-
-    def has_won(self):
-        return self.state == GameStateEnum.won
-
-    def has_lost(self):
-        return self.state == GameStateEnum.lost
-
-
-class GameStateEnum(Enum):
-    running = 0
-    won = 1
-    lost = 2

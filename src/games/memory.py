@@ -2,9 +2,6 @@ import random
 
 import cytolk.tolk as tolk
 import pygame
-
-from enum import Enum
-
 from .grid_game import GridGame, GridGameObserver, LEFT, RIGHT, UP, DOWN
 
 
@@ -20,13 +17,13 @@ class MemoryObs(GridGameObserver):
         self.revealed_word = None
 
     def handle_start(self, game, *args, **kwargs):
+        super().handle_start(game, *args, **kwargs)
         words = game.context.word_db.fetch_random_words(3, 6, 8, False) * 2
         self.grid = words.copy()
         random.shuffle(self.grid)
         self.revealed = [
             False,
         ] * len(self.grid)
-        self.state = GameStateEnum.running
         tolk.output("Welcome!")
 
     def handle_grid_scroll(self, game, direction, *args, **kwargs):
@@ -54,16 +51,6 @@ class MemoryObs(GridGameObserver):
                 tolk.output("No match")
                 self.revealed[self.revealed_word] = False
                 self.revealed[index] = False
+            elif all([tile == True for tile in self.revealed]):
+                self.set_win_state()
             self.revealed_word = None
-
-    def has_won(self):
-        return all([tile == True for tile in self.revealed])
-
-    def has_lost(self):
-        return self.state == GameStateEnum.lost
-
-
-class GameStateEnum(Enum):
-    running = 0
-    won = 1
-    lost = 2

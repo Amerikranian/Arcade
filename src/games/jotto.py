@@ -15,6 +15,7 @@ class JottoObs(TextInputObserver):
         self.letter_cnt = 0
 
     def handle_start(self, game, *args, **kwargs):
+        super().handle_start(game, *args, **kwargs)
         self.hidden_word = game.context.word_db.fetch_random_word(5, 5, True)
 
     def is_char_matching(self, char):
@@ -30,15 +31,15 @@ class JottoObs(TextInputObserver):
             if not game.context.word_db.word_in_db(self.text):
                 tolk.output("No nonsense, please", True)
             else:
-                self.letter_cnt = len([l for l in self.text if l in self.hidden_word])
-                tolk.output(str(self.letter_cnt))
+                letter_cnt = len([l for l in self.text if l in self.hidden_word])
+                if letter_cnt == len(self.hidden_word):
+                    self.set_win_state()
+                else:
+                    tolk.output(str(letter_cnt))
 
             self.clear_text()
 
         return res
-
-    def has_won(self):
-        return self.letter_cnt == len(self.hidden_word)
 
     def gather_statistics(self):
         base_stats = super().gather_statistics()
