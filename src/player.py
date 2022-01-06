@@ -17,8 +17,8 @@ class Player:
     def set_stat_state(self, state):
         self.statistics = state
 
-    def fetch_unlocked_games(self):
-        return list(self.game_state)
+    def fetch_unlocked_games(self, should_sort=False):
+        return list(self.game_state) if not should_sort else sorted(self.game_state)
 
     def fetch_unlocked_game_variations(self, game):
         if game not in self.game_state:

@@ -21,7 +21,7 @@ class GameListMenu(Menu):
     def on_create(self):
         # We don't override the enter transition function because it would regenerate the menu every time we returned to this state
         # Since game unlocks are planned to occur in a shop of sorts, and the games themselves have no ability to unlock games, we can generate the items once because the shop can only be accessed in the main menu
-        for game in self.context.player.fetch_unlocked_games():
+        for game in self.context.player.fetch_unlocked_games(True):
             # Since we are doing some black magic, we need to ensure that it will work off the bat
             if not hasattr(games, game):
                 raise ValueError(
