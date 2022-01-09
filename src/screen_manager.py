@@ -9,10 +9,23 @@ class ScreenManager:
     def __init__(self, ctx=None):
         self.input_state = Keyboard()
         self.screens = []
+        # Screen queue is just a delayed method of pushing states
+        # Since states can take time to quit, this is equivalent of "push the state onto the stack as soon as the state actually exits"
+        # As expected, we have fifo order
+        self.screen_queue = []
         self.context = ctx
 
     def has_screens(self):
         return len(self.screens) > 0
+
+    def enqueue_screen(self, screen):
+        self.screen_queue.append(screen)
+
+    def dequeue_screen(self, screen):
+        self.screen_queue.remove(screen)
+
+    def is_screen_queue_empty(self):
+        return len(self.screen_queue) == 0
 
     def add_screen(self, screen):
         # Do injection of `self` and `self.context` first
@@ -22,10 +35,14 @@ class ScreenManager:
         screen.on_create()
         self.screens.append(screen)
 
-    def remove_screen(self, screen):
+    def remove_screen(self, screen, use_queue=True):
         if screen in self.screens:
             self.screens.remove(screen)
         screen.on_destroy()
+
+        if use_queue and not self.is_screen_queue_empty():
+            queued_screen = self.screen_queue.pop(0)
+            self.add_screen(queued_screen)
 
     def fetch_screen_from_top(self, offset):
         return self.screens[-offset]
