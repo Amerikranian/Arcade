@@ -12,7 +12,6 @@ class JottoObs(TextInputObserver):
     def __init__(self):
         super().__init__("^[a-z]$", True)
         self.hidden_word = ""
-        self.letter_cnt = 0
 
     def handle_start(self, game, *args, **kwargs):
         super().handle_start(game, *args, **kwargs)
@@ -25,9 +24,7 @@ class JottoObs(TextInputObserver):
         res = False
         if len(self.text) < len(self.hidden_word):
             tolk.output("You must submit a word containing exactly five letters", True)
-            res = True
         else:
-            res = True
             if not game.context.word_db.word_in_db(self.text):
                 tolk.output("No nonsense, please", True)
             else:

@@ -27,6 +27,9 @@
         }
     },
     "games": {
+        "Anagrams": {
+            "unlocked_by_default": true
+        },
         "CelestialSlide": {
             "unlocked_by_default": true
         },
