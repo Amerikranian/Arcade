@@ -27,6 +27,9 @@
         }
     },
     "games": {
+        "AlphabeticalAssault": {
+            "unlocked_by_default": true
+        },
         "Anagrams": {
             "unlocked_by_default": true
         },

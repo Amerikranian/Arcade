@@ -92,7 +92,7 @@ class SoundManager:
         return self.play(path, True, **kwargs)
 
     def set_position(self, position):
-        self.synthizer_context.position = position
+        self.synthizer_context.position.value = position
 
     def update(self):
         for event in self.synthizer_context.get_events():
