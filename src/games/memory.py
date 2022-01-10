@@ -2,7 +2,11 @@ import random
 
 import cytolk.tolk as tolk
 import pygame
+
 from .grid_game import GridGame, GridGameObserver, LEFT, RIGHT, UP, DOWN
+
+
+EVT_TIME_CHECK = "time_check"
 
 
 class Memory(GridGame):
@@ -10,11 +14,22 @@ class Memory(GridGame):
         super().__init__(variation, difficulty)
         self.add_observer(MemoryObs())
 
+    def handle_input(self, delta, input_state):
+        super().handle_input(delta, input_state)
+        if input_state.key_pressed(pygame.K_t):
+            self.send_notification(EVT_TIME_CHECK)
+
 
 class MemoryObs(GridGameObserver):
     def __init__(self):
         super().__init__(4, 4)
         self.revealed_word = None
+        self.timer = 0
+        self.time_limit = 60
+
+    @property
+    def time_remaining(self):
+        return round(self.time_limit - self.timer)
 
     def handle_start(self, game, *args, **kwargs):
         super().handle_start(game, *args, **kwargs)
@@ -54,3 +69,15 @@ class MemoryObs(GridGameObserver):
             elif all([tile == True for tile in self.revealed]):
                 self.set_win_state()
             self.revealed_word = None
+
+    def handle_frame_update(self, game, delta, **kwargs):
+        self.timer += delta
+
+    def handle_time_check(self, game, **kwargs):
+        tolk.output(f"{self.time_remaining} seconds remaining")
+
+    def has_won(self):
+        return all([tile == True for tile in self.revealed])
+
+    def has_lost(self):
+        return self.time_remaining <= 0
