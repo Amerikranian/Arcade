@@ -65,6 +65,7 @@ class AlphabeticalAssaultObs(GridGameObserver):
         self.last_landed_letter = None
         self.grid = [[None] * self.dimensions[1] for i in range(self.dimensions[0])]
         self.letter_spawning_speed = 1
+        self.minimum_word_length = 3
         self.letter_falling_speed = 1.25
         self.letter_falling_timer = GameTimer(
             self.drop_active_letter,
@@ -149,6 +150,8 @@ class AlphabeticalAssaultObs(GridGameObserver):
             self.grid[location[0]][location[1]] = new_letter
             self.game.play_from_dir("spawn", position=(location[0], 0, location[1]))
             tolk.output(new_letter)
+        else:
+            self.set_lose_state()
 
     def drop_active_letter(self):
         if not self.is_grounded(self.active_letter):
@@ -167,6 +170,8 @@ class AlphabeticalAssaultObs(GridGameObserver):
             self.active_letter = None
             self.game.play_from_dir("land", position=(x, 0, y))
             self.letter_spawning_timer.restart()
+            if len(self.bag) <= 0:
+                self.set_win_state()
 
     def fall(self, position):
         x, y = position
@@ -196,7 +201,7 @@ class AlphabeticalAssaultObs(GridGameObserver):
 
     def longest_word_on_row(self, row):
         longest_word = []
-        for i in range(3, len(self.grid)):
+        for i in range(self.minimum_word_length, len(self.grid)):
             for j in range(0, len(self.grid) - i + 1):
                 positions = [[j + k, row] for k in range(i)]
                 word = self.positions_to_string(positions)
@@ -210,7 +215,7 @@ class AlphabeticalAssaultObs(GridGameObserver):
 
     def longest_word_on_column(self, column):
         longest_word = []
-        for i in range(3, len(self.grid[column])):
+        for i in range(self.minimum_word_length, len(self.grid[column])):
             for j in range(0, len(self.grid[column]) - i + 1):
                 positions = [[column, j + k] for k in range(i)]
                 word = self.positions_to_string(positions)
@@ -234,12 +239,6 @@ class AlphabeticalAssaultObs(GridGameObserver):
         results = (self.longest_word_on_row(y), self.longest_word_on_column(x))
         word = max(results, key=lambda x: len(x))
         return word if word else None
-
-    def has_won(self):
-        return len(self.bag) <= 0
-
-    def has_lost(self):
-        pass
 
 
 class GameTimer(Timer):
