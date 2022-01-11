@@ -4,7 +4,6 @@ import synthizer
 import time
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
-import cytolk.tolk as tolk
 import pygame
 
 import games
@@ -35,7 +34,6 @@ def init():
     pygame.init()
     w = pygame.display.set_mode((720, 480))
     pygame.display.set_caption("Testing Stuff")
-    tolk.load()
 
     with synthizer.initialized():
         main()
@@ -44,7 +42,6 @@ def init():
 
 
 def shutdown():
-    tolk.unload()
     pygame.quit()
 
 

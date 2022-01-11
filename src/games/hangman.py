@@ -1,4 +1,3 @@
-import cytolk.tolk as tolk
 import pygame
 from .text_game import TextGame, TextGameObserver
 
@@ -39,7 +38,7 @@ class HangmanObs(TextGameObserver):
             return False
         # We forgive letter repetitions on easy
         if char in self.guessed_letters and difficulty == 0:
-            tolk.output("You already guessed that!")
+            game.context.spm.output("You already guessed that!")
             return True
         self.guessed_letters.add(char)
         if char not in self.text:
@@ -48,36 +47,40 @@ class HangmanObs(TextGameObserver):
             if self.remaining_guesses == 0:
                 self.set_lose_state()
             else:
-                tolk.output("No such luck.", True)
+                game.context.spm.output("No such luck.", True)
 
         else:
             if all(l in self.guessed_letters for l in self.text):
                 self.set_win_state()
             else:
-                self.announce_word()
+                self.announce_word(game)
 
         return True
 
     def handle_text_scroll(self, game, *args, **kwargs):
         if not super().handle_text_scroll(game, *args, **kwargs):
             return False
-        tolk.output(self.fetch_word_character(self.text[self.cursor]))
+        game.context.spm.output(self.fetch_word_character(self.text[self.cursor]))
         return True
 
     def handle_word_check(self, game, *args, **kwargs):
-        tolk.output("".join(self.fetch_word_character(i) for i in self.text))
+        game.context.spm.output(
+            "".join(self.fetch_word_character(i) for i in self.text)
+        )
         return True
 
     def handle_guess_check(self, game, *args, **kwargs):
-        tolk.output(
+        game.context.spm.output(
             f"{self.remaining_guesses} guess{'es' if self.remaining_guesses > 1 else ''} remaining"
         )
 
     def fetch_word_character(self, char):
         return "*" if char not in self.guessed_letters else char
 
-    def announce_word(self):
-        tolk.output(",".join(self.fetch_word_character(i) for i in self.text))
+    def announce_word(self, game):
+        game.context.spm.output(
+            ",".join(self.fetch_word_character(i) for i in self.text)
+        )
 
     def calculate_cursor_offset(self, offset, direction):
         return min(

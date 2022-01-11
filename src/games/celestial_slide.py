@@ -1,6 +1,4 @@
 import random
-
-import cytolk.tolk as tolk
 import pygame
 
 from .grid_game import GridGame, GridGameObserver, LEFT, RIGHT, UP, DOWN
@@ -31,16 +29,16 @@ class CelestialSlideObs(GridGameObserver):
 
     def handle_start(self, game, *args, **kwargs):
         super().handle_start(game, *args, **kwargs)
-        tolk.output("Welcome!")
+        game.context.spm.output("Welcome!")
 
     def handle_grid_scroll(self, game, direction, *args, **kwargs):
         if not super().handle_grid_scroll(game, direction, *args, **kwargs):
             return False
         index = self.flatten(self.position)
         if self.grid[index]:
-            tolk.output(self.grid[index])
+            game.context.spm.output(self.grid[index])
         else:
-            tolk.output("Empty")
+            game.context.spm.output("Empty")
         return True
 
     def handle_slide(self, game, direction, *args, **kwargs):
@@ -54,7 +52,7 @@ class CelestialSlideObs(GridGameObserver):
                 self.grid[position],
             )
             self.position = new_position
-            tolk.output("*Sliding sound*")
+            game.context.spm.output("*Sliding sound*")
             return True
         return False
 
@@ -62,5 +60,5 @@ class CelestialSlideObs(GridGameObserver):
         if self.grid[:-1] == self.initial_sequence:
             self.set_win_state()
         else:
-            tolk.output("Incomplete")
+            game.context.spm.output("Incomplete")
         return True

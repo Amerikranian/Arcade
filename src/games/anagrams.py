@@ -1,5 +1,4 @@
 from collections import Counter
-import cytolk.tolk as tolk
 import pygame
 from .game_utils import Timer
 from .text_game import TextGame, TextInputObserver
@@ -35,7 +34,7 @@ class AnagramsObs(TextInputObserver):
         self.anagram_word = game.context.word_db.fetch_random_word(8, 15, True)
         self.letter_counts = Counter(self.anagram_word)
         self.game_timer = Timer(self.set_win_state, 60)
-        tolk.output("Your word is: %s" % self.anagram_word)
+        game.context.spm.output("Your word is: %s" % self.anagram_word)
 
     def is_char_matching(self, char):
         return super().is_char_matching(char) and self.text.count(
@@ -45,22 +44,22 @@ class AnagramsObs(TextInputObserver):
     def handle_text_submit(self, game, *args, **kwargs):
         # The word must be long enough
         if len(self.text) < MINIMUM_WORD_LENGTH:
-            tolk.output(
+            game.context.spm.output(
                 "Your word must be at least %s letter long" % MINIMUM_WORD_LENGTH
             )
         # Word can't be the same as `anagram_word`
         elif self.text == self.anagram_word:
-            tolk.output("The starting word does not count!")
+            game.context.spm.output("The starting word does not count!")
         elif self.text in self.entered_anagrams:
-            tolk.output("You already guessed that")
+            game.context.spm.output("You already guessed that")
         else:
             if not game.context.word_db.word_in_db(self.text):
-                tolk.output("Your anagram needs to be a valid word")
+                game.context.spm.output("Your anagram needs to be a valid word")
             else:
                 self.entered_anagrams.add(self.text)
                 # We subtract to add time
                 self.game_timer.add_time(-3)
-                tolk.output("Next?")
+                game.context.spm.output("Next?")
 
         self.clear_text()
         return False
@@ -69,10 +68,10 @@ class AnagramsObs(TextInputObserver):
         self.game_timer.update(delta)
 
     def handle_spell_word(self, game, *args, **kwargs):
-        tolk.output(", ".join(self.anagram_word))
+        game.context.spm.output(", ".join(self.anagram_word))
 
     def handle_check_time(self, game, *args, **kwargs):
-        tolk.output("%d seconds" % self.game_timer.fetch_remaining_time())
+        game.context.spm.output("%d seconds" % self.game_timer.fetch_remaining_time())
 
     def gather_statistics(self):
         # Stub

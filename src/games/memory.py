@@ -1,6 +1,4 @@
 import random
-
-import cytolk.tolk as tolk
 import pygame
 
 from .grid_game import GridGame, GridGameObserver, LEFT, RIGHT, UP, DOWN
@@ -39,16 +37,16 @@ class MemoryObs(GridGameObserver):
         self.revealed = [
             False,
         ] * len(self.grid)
-        tolk.output("Welcome!")
+        game.context.spm.output("Welcome!")
 
     def handle_grid_scroll(self, game, direction, *args, **kwargs):
         if not super().handle_grid_scroll(game, direction, *args, **kwargs):
             return False
         index = self.flatten(self.position)
         if self.revealed[index]:
-            tolk.output(self.grid[index])
+            game.context.spm.output(self.grid[index])
         else:
-            tolk.output(str(self.position))
+            game.context.spm.output(str(self.position))
         return True
 
     def handle_grid_submit(self, game, *args, **kwargs):
@@ -58,12 +56,12 @@ class MemoryObs(GridGameObserver):
         if self.revealed_word == None:
             self.revealed_word = index
             self.revealed[index] = True
-            tolk.output(f"Revealed {self.grid[index]}")
+            game.context.spm.output(f"Revealed {self.grid[index]}")
         else:
-            tolk.output(f"Revealed {self.grid[index]}")
+            game.context.spm.output(f"Revealed {self.grid[index]}")
             self.revealed[index] = True
             if not self.grid[self.revealed_word] == self.grid[index]:
-                tolk.output("No match")
+                game.context.spm.output("No match", False)
                 self.revealed[self.revealed_word] = False
                 self.revealed[index] = False
             elif all([tile == True for tile in self.revealed]):
@@ -72,12 +70,8 @@ class MemoryObs(GridGameObserver):
 
     def handle_frame_update(self, game, delta, **kwargs):
         self.timer += delta
+        if self.time_remaining <= 0:
+            self.set_lose_state()
 
     def handle_time_check(self, game, **kwargs):
-        tolk.output(f"{self.time_remaining} seconds remaining")
-
-    def has_won(self):
-        return all([tile == True for tile in self.revealed])
-
-    def has_lost(self):
-        return self.time_remaining <= 0
+        game.context.spm.output(f"{self.time_remaining} seconds remaining")

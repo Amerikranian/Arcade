@@ -1,4 +1,3 @@
-import cytolk.tolk as tolk
 import pygame
 import re
 from .observable_game import ObservableGame, GameObserver
@@ -84,11 +83,11 @@ class TextInputObserver(TextGameObserver):
         if not super().handle_text_unicode(game, char):
             return False
         else:
-            self.announce_char(char)
+            self.announce_char(game, char)
         return True
 
-    def announce_char(self, char):
-        tolk.output(char, True)
+    def announce_char(self, game, char):
+        game.context.spm.output(char, True)
 
     def get_char_from_text_offset(self):
         if self.cursor == len(self.text):

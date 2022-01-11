@@ -1,5 +1,4 @@
 import pygame.locals as pl
-from cytolk import tolk
 from screen import Screen
 
 
@@ -65,7 +64,7 @@ class Menu(Screen):
 
     def focus_item(self):
         # Will probably become function on `MenuItem` at some point
-        tolk.output(str(self.items[self.cursor_position]))
+        self.context.spm.output(str(self.items[self.cursor_position]), False)
 
     def activate_item(self):
         self.items[self.cursor_position].invoke(self)
@@ -84,7 +83,7 @@ class Menu(Screen):
 
     def get_progress_of_enter_transition(self, delta):
         if self.intro_message:
-            tolk.output(self.intro_message, True)
+            self.context.spm.output(self.intro_message, True)
         self.focus_item()
         return False
 

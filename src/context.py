@@ -5,6 +5,7 @@ from constants import DATA_GAME_PATH, DEFAULTS
 from game_data_manager import GameDataManager
 from game_data_parser import GameDataParser
 from player import Player
+from speech_manager import SpeechManager
 from word_db import WordDB
 
 GAME_INFO_PATH = "data/games/info.json"
@@ -20,6 +21,7 @@ class Context:
         self.file_manager = file_mgr
         self.gdm = GameDataManager()
         self.player = Player()
+        self.spm = SpeechManager()
         self.word_db = WordDB()
         self.sounds = snd_mgr
 

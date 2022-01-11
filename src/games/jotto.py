@@ -1,4 +1,3 @@
-import cytolk.tolk as tolk
 from .text_game import TextGame, TextInputObserver
 
 
@@ -23,16 +22,18 @@ class JottoObs(TextInputObserver):
     def handle_text_submit(self, game, *args, **kwargs):
         res = False
         if len(self.text) < len(self.hidden_word):
-            tolk.output("You must submit a word containing exactly five letters", True)
+            game.context.spm.output(
+                "You must submit a word containing exactly five letters", True
+            )
         else:
             if not game.context.word_db.word_in_db(self.text):
-                tolk.output("No nonsense, please", True)
+                game.context.spm.output("No nonsense, please", True)
             else:
                 letter_cnt = len([l for l in self.text if l in self.hidden_word])
                 if letter_cnt == len(self.hidden_word):
                     self.set_win_state()
                 else:
-                    tolk.output(str(letter_cnt))
+                    game.context.spm.output(str(letter_cnt))
 
             self.clear_text()
 

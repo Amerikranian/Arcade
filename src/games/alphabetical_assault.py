@@ -1,7 +1,5 @@
 import enum
 import random
-
-import cytolk.tolk as tolk
 import pygame
 
 from .game_utils import Timer
@@ -66,7 +64,7 @@ class AlphabeticalAssaultObs(GridGameObserver):
         self.grid = [[None] * self.dimensions[1] for i in range(self.dimensions[0])]
         self.letter_spawning_speed = 1
         self.minimum_word_length = 3
-        self.letter_falling_speed = 1.25
+        self.letter_falling_speed = 0.001
         self.letter_falling_timer = GameTimer(
             self.drop_active_letter,
             self.letter_falling_speed,
@@ -84,16 +82,16 @@ class AlphabeticalAssaultObs(GridGameObserver):
         self.game = game
         game.context.sounds.set_position(((self.dimensions[0] / 2) - 0.5, -0.5, 0))
         self.position = [0, self.dimensions[1] - 1]
-        tolk.output("Welcome!")
+        game.context.spm.output("Welcome!")
 
     def handle_grid_scroll(self, game, direction, *args, **kwargs):
         if not super().handle_grid_scroll(game, direction, *args, **kwargs):
             return False
         x, y = self.position
         if self.grid[x][y]:
-            tolk.output(f"{self.grid[x][y]}; {x+1}, {y+1}")
+            game.context.spm.output(f"{self.grid[x][y]}; {x+1}, {y+1}")
         else:
-            tolk.output(f"Empty; {x+1}, {y+1}")
+            game.context.spm.output(f"Empty; {x+1}, {y+1}")
         game.play_from_dir("scroll", position=(x, 0, y))
         return True
 
@@ -110,7 +108,7 @@ class AlphabeticalAssaultObs(GridGameObserver):
                 )
                 self.active_letter = destination
                 game.play_from_dir("slide", position=(new_x, 0, new_y))
-                tolk.output(f"{new_x+1}, {new_y+1}")
+                game.context.spm.output(f"{new_x+1}, {new_y+1}")
 
     def handle_frame_update(self, game, delta, **kwargs):
         self.letter_spawning_timer.update(delta)
@@ -130,10 +128,10 @@ class AlphabeticalAssaultObs(GridGameObserver):
     def handle_report_active_letter(self, game, **kwargs):
         if self.active_letter:
             x, y = self.active_letter
-            tolk.output(f"{self.grid[x][y]}; {x+1}, {y+1}")
+            game.context.spm.output(f"{self.grid[x][y]}; {x+1}, {y+1}")
 
     def handle_report_letters_remaining(self, game, **kwargs):
-        tolk.output(f"{len(self.bag)} letters remaining")
+        game.context.spm.output(f"{len(self.bag)} letters remaining")
 
     def spawn_letter(self):
         new_letter = None
@@ -149,7 +147,7 @@ class AlphabeticalAssaultObs(GridGameObserver):
             self.active_letter = location
             self.grid[location[0]][location[1]] = new_letter
             self.game.play_from_dir("spawn", position=(location[0], 0, location[1]))
-            tolk.output(new_letter)
+            self.game.context.spm.output(new_letter)
         else:
             self.set_lose_state()
 
@@ -194,7 +192,7 @@ class AlphabeticalAssaultObs(GridGameObserver):
         word = self.find_longest_word((x, y))
         if word:
             self.game.play_from_dir("good")
-            tolk.output(self.positions_to_string(word).lower())
+            self.game.context.spm.output(self.positions_to_string(word).lower())
             for position in word:
                 x, y = position
                 self.grid[x][y] = None
