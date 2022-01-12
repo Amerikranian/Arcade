@@ -64,7 +64,7 @@ class AlphabeticalAssaultObs(GridGameObserver):
         self.grid = [[None] * self.dimensions[1] for i in range(self.dimensions[0])]
         self.letter_spawning_speed = 1
         self.minimum_word_length = 3
-        self.letter_falling_speed = 0.001
+        self.letter_falling_speed = 1.25
         self.letter_falling_timer = GameTimer(
             self.drop_active_letter,
             self.letter_falling_speed,
