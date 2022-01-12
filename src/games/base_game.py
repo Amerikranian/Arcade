@@ -19,12 +19,12 @@ class Game(Screen):
     def play(self, path, **kwargs):
         if ext is None:
             ext = DEFAULT_SOUND_EXT
-        self.context.sounds.play(join(DEFAULT_SOUND_DIR, path + ext), **kwargs)
+        return self.context.sounds.play(join(DEFAULT_SOUND_DIR, path + ext), **kwargs)
 
     def play_from_dir(self, path, ext=None, **kwargs):
         if ext is None:
             ext = DEFAULT_SOUND_EXT
-        self.context.sounds.play(
+        return self.context.sounds.play(
             join(
                 DEFAULT_SOUND_DIR,
                 self.context.player.fetch_last_game_played(),
@@ -36,12 +36,12 @@ class Game(Screen):
     def stream(self, path, **kwargs):
         if ext is None:
             ext = DEFAULT_SOUND_EXT
-        self.context.sounds.stream(join(DEFAULT_SOUND_DIR, path + ext), **kwargs)
+        return self.context.sounds.stream(join(DEFAULT_SOUND_DIR, path + ext), **kwargs)
 
     def stream_from_dir(self, path, ext=None, **kwargs):
         if ext is None:
             ext = DEFAULT_SOUND_EXT
-        self.context.sounds.stream(
+        return self.context.sounds.stream(
             join(
                 DEFAULT_SOUND_DIR,
                 self.context.player.fetch_last_game_played(),

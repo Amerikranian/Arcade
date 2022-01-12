@@ -44,6 +44,14 @@
         },
         "Memory": {
             "unlocked_by_default": true
+        },
+        "QuickType": {
+            "unlocked_by_default": true,
+        "difficulties": {
+            "0": "IceCream",
+            "1": "Medium",
+            "2": "Hard"
+        }
         }
     }
 }
