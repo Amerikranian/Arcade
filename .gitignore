@@ -136,3 +136,7 @@ Pipfile
 
 # Logs
 src/logs/
+
+# Nuitka stuff
+*.build/
+*.dist/
