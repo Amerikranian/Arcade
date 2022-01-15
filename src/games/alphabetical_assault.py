@@ -84,6 +84,9 @@ class AlphabeticalAssaultObs(GridGameObserver):
         self.position = [0, self.dimensions[1] - 1]
         game.context.spm.output("Welcome!")
 
+    def in_bounds(self, position):
+        return not any(map(lambda x, y: x < 0 or x >= y, position, self.dimensions))
+
     def handle_grid_scroll(self, game, direction, *args, **kwargs):
         if not super().handle_grid_scroll(game, direction, *args, **kwargs):
             return False

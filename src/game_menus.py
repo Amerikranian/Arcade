@@ -13,11 +13,20 @@ class MainMenu(Menu):
         self.add_item(
             "Play games", lambda x: x.screen_manager.add_screen(GameListMenu())
         )
+        self.add_item(
+            "See game statistics",
+            lambda x: x.screen_manager.add_screen(StatGameListMenu()),
+        )
         self.add_item_without_callback("Quit")
         self.set_intro_message("Welcome!")
 
 
-class GameListMenu(Menu):
+class GameList(Menu):
+    def __init__(self, clb, intro_message):
+        super().__init__()
+        self.clb = clb
+        self.intro_message = intro_message
+
     def on_create(self):
         # We don't override the enter transition function because it would regenerate the menu every time we returned to this state
         # Since game unlocks are planned to occur in a shop of sorts, and the games themselves have no ability to unlock games, we can generate the items once because the shop can only be accessed in the main menu
@@ -30,12 +39,30 @@ class GameListMenu(Menu):
                 )
             self.add_item(
                 self.context.gdm.fetch_game_display_name(game),
-                lambda x, y: x.screen_manager.add_screen(GameSelectedMenu(y)),
+                self.clb,
                 game,
                 should_include_self=True,
             )
         self.add_item_without_callback("Go back")
-        self.set_intro_message("What would you like to play?")
+        self.set_intro_message(self.intro_message)
+
+
+# Generated for game purposes
+class GameListMenu(GameList):
+    def __init__(self):
+        super().__init__(
+            lambda x, y: x.screen_manager.add_screen(GameSelectedMenu(y)),
+            "What would you like to play?",
+        )
+
+
+# Generated for stat purposes
+class StatGameListMenu(GameList):
+    def __init__(self):
+        super().__init__(
+            lambda x, y: x.screen_manager.add_screen(StatGameVariationMenu(y)),
+            "What game would you like to see stats for?",
+        )
 
 
 class GameSelectedMenu(Menu):
@@ -70,19 +97,45 @@ class GameHelpMenu(Menu):
         self.set_intro_message("%s instructions menu" % game_name)
 
 
-class GameVariationMenu(Menu):
+class GameVariation(Menu):
+    def __init__(self, clb):
+        super().__init__()
+        self.clb = clb
+
     def on_create(self):
         game_name = self.context.player.fetch_last_game_played()
         variations = list(self.context.player.fetch_unlocked_game_variations(game_name))
         for v in variations:
             self.add_item(
                 v,
-                lambda x: self.screen_manager.add_screen(GameDifficultyMenu(v)),
+                self.clb,
+                v,
                 should_exit=True,
+                should_include_self=True,
             )
 
         self.add_item_without_callback("Go back")
         self.set_intro_message("%s variation menu" % game_name)
+
+
+class GameVariationMenu(GameVariation):
+    def __init__(self):
+        super().__init__(
+            lambda x, y: self.screen_manager.add_screen(GameDifficultyMenu(y))
+        )
+
+
+class StatGameVariationMenu(GameVariation):
+    def __init__(self, game_name):
+        super().__init__(
+            lambda x, y: self.screen_manager.add_screen(StatGameDifficultyMenu(y))
+        )
+        self.game_name = game_name
+
+    def on_create(self):
+        # We need to set game name, as we bypass `GameSelectedMenu`
+        self.context.player.set_last_played_game(self.game_name)
+        super().on_create()
 
 
 class GameDifficultyMenu(Menu):
@@ -108,9 +161,41 @@ class GameDifficultyMenu(Menu):
         self.set_intro_message("%s difficulty menu" % game_name)
 
 
+# It's too much of a pain to inherit diff menu, so copypasting it is... for the most part
+class StatGameDifficultyMenu(Menu):
+    def __init__(self, variation):
+        super().__init__()
+        self.variation = variation
+
+    def on_create(self):
+        game_name = self.context.player.fetch_last_game_played()
+        diffs = self.context.player.fetch_unlocked_game_variation_difficulties(
+            game_name, self.variation
+        )
+        for d in diffs:
+            self.add_item(
+                self.context.gdm.fetch_game_difficulty_label(game_name, d),
+                lambda x: x.screen_manager.add_screen(
+                    StatisticsMenu(
+                        {}, self.variation, d, is_displaying_total_stats=True
+                    )
+                ),
+                should_exit=True,
+            )
+
+        self.add_item_without_callback("Go back")
+        self.set_intro_message("%s difficulty menu" % game_name)
+
+
 class StatisticsMenu(Menu):
     def __init__(
-        self, stat_items, variation, difficulty, s_intro="", include_statistics=True
+        self,
+        stat_items,
+        variation,
+        difficulty,
+        s_intro="",
+        include_statistics=True,
+        is_displaying_total_stats=False,
     ):
         super().__init__()
         self.stat_items = stat_items
@@ -118,6 +203,7 @@ class StatisticsMenu(Menu):
         self.difficulty = difficulty
         self.s_intro = s_intro
         self.inc_stats = include_statistics
+        self.is_displaying_total_stats = is_displaying_total_stats
 
     def on_create(self):
         # Preliminaries
@@ -132,10 +218,16 @@ class StatisticsMenu(Menu):
             if stat in self.stat_items:
                 stat_obj.update(self.stat_items[stat])
 
-        for stat in [
-            *display_order,
-            *sorted(i for i in self.stat_items if i not in display_order),
-        ]:
+        stat_lst = []
+        if not self.is_displaying_total_stats:
+            stat_lst = [
+                *display_order,
+                *sorted(i for i in self.stat_items if i not in display_order),
+            ]
+        else:
+            stat_lst = list(game_stats)
+
+        for stat in stat_lst:
             if stat in game_stats:
                 output_msg = (
                     self.context.gdm.fetch_game_statistic_display_msg(game_name, stat)

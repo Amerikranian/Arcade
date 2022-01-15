@@ -1,13 +1,17 @@
 import os
-import logging
-import synthizer
-import time
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
+
+import logging
+import synthizer
+import sys
+
+# https://stackoverflow.com/questions/2880723/win32-exception-occurred-releasing-iunknown-at-error-using-pylons-and-wmi
+sys.coinit_flags = 0
+
+import time
 import pygame
-
 import games
-
 from file_manager import FileManager
 from game_menus import MainMenu
 from screen_manager import ScreenManager
