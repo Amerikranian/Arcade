@@ -33,6 +33,7 @@ class Menu(Screen):
         self.intro_message = ""
         self.items = []
         self.cursor_position = 0
+        self.can_be_dismissed = True
 
     def set_intro_message(self, msg):
         self.intro_message = msg
@@ -92,5 +93,11 @@ class Menu(Screen):
             self.scroll(-1)
         elif input_state.key_pressed(pl.K_DOWN):
             self.scroll(1)
+        elif input_state.key_pressed(pl.K_HOME):
+            self.scroll(-self.cursor_position)
+        elif input_state.key_pressed(pl.K_END):
+            self.scroll(len(self.items) - 1 - self.cursor_position)
+        elif input_state.key_pressed(pl.K_ESCAPE) and self.can_be_dismissed:
+            self.exit()
         elif input_state.key_pressed(pl.K_RETURN):
             self.activate_item()

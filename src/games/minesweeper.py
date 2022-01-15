@@ -167,7 +167,9 @@ class MinesweeperObs(GridGameObserver):
         else:
             # We should only allow marking hidden tiles
             if self.grid[index] == TileEnum.seen:
-                game.context.spm.output("There is no point in marking already-known tiles")
+                game.context.spm.output(
+                    "There is no point in marking already-known tiles"
+                )
             else:
                 self.marked_tiles.add(index)
                 game.context.spm.output("Marked")
