@@ -30,7 +30,7 @@ class Game(Screen):
                 self.context.player.fetch_last_game_played(),
                 path + ext,
             ),
-            **kwargs
+            **kwargs,
         )
 
     def stream(self, path, **kwargs):
@@ -47,5 +47,5 @@ class Game(Screen):
                 self.context.player.fetch_last_game_played(),
                 path + ext,
             ),
-            **kwargs
+            **kwargs,
         )

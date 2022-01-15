@@ -45,6 +45,9 @@
         "Memory": {
             "unlocked_by_default": true
         },
+        "Minesweeper": {
+            "unlocked_by_default": true
+        },
         "QuickType": {
             "unlocked_by_default": true,
         "difficulties": {

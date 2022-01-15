@@ -52,7 +52,14 @@ class GridGameObserver(GameObserver):
         return False
 
     def in_bounds(self, position):
-        return not any(map(lambda x, y: x < 0 or x >= y, position, self.dimensions))
+        # Under consideration--breaks when grid grows
+        # return not any(map(lambda x, y: x < 0 or x >= y, position, self.dimensions))
+        # Uggly quickpatch
+        return (
+            0 <= position[0] < self.dimensions[0]
+            and 0 <= position[0] < self.dimensions[1]
+            and 0 <= self.flatten(position) < len(self.grid)
+        )
 
     def handle_slide(self, game, direction, *args, **kwargs):
         pass
