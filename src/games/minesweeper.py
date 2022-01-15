@@ -8,6 +8,7 @@ EVT_MINE_CHECK = "check_mines"
 EVT_GRID_REVEAL = "reveal_pos"
 EVT_TILE_CNT = "check_empty_tile_count"
 EVT_LVL_SKIP = "skip_level"
+EVT_TILE_MARK = "mark_tile"
 
 
 class Minesweeper(GridGame):
@@ -25,6 +26,8 @@ class Minesweeper(GridGame):
             self.send_notification(EVT_TILE_CNT)
         if input_state.key_pressed(pygame.K_n):
             self.send_notification(EVT_LVL_SKIP)
+        if input_state.key_pressed(pygame.K_m):
+            self.send_notification(EVT_TILE_MARK)
 
 
 class MinesweeperObs(GridGameObserver):
@@ -43,6 +46,7 @@ class MinesweeperObs(GridGameObserver):
             (-1, 1),
         )
         self.total_empty_tiles = 0
+        self.marked_tiles = set()
 
     def handle_start(self, game, *args, **kwargs):
         super().handle_start(game, *args, **kwargs)
@@ -78,6 +82,9 @@ class MinesweeperObs(GridGameObserver):
         random.shuffle(self.grid)
 
     def fetch_tile_info(self, index):
+        # A quick check
+        if index in self.marked_tiles:
+            return "Marked"
         match self.grid[index]:
             case TileEnum.seen:
                 return "Seen"
@@ -121,6 +128,8 @@ class MinesweeperObs(GridGameObserver):
             case TileEnum.empty:
                 self.grid[index] = TileEnum.seen
                 self.total_empty_tiles -= 1
+                if self.total_empty_tiles == 0:
+                    self.level_up()
                 game.context.spm.output(str(self.fetch_adjacent_empty_tile_count()))
 
     def handle_check_empty_tile_count(self, game, *args, **kwargs):
@@ -141,7 +150,7 @@ class MinesweeperObs(GridGameObserver):
     def handle_skip_level(self, game, *args, **kwargs):
         # This is somewhat of an arbitrary number
         # Perhaps we'll make this percentage-based, too
-        if self.total_empty_tiles <= 100:
+        if self.total_empty_tiles <= 7:
             self.level_up()
             game.context.spm.output("Level skipped. New level generated")
             game.context.spm.output(
@@ -149,6 +158,19 @@ class MinesweeperObs(GridGameObserver):
             )
         else:
             game.context.spm.output("There are still plenty of tiles to find...")
+
+    def handle_mark_tile(self, game, *args, **kwargs):
+        index = self.flatten(self.position)
+        if index in self.marked_tiles:
+            self.marked_tiles.remove(index)
+            game.context.spm.output("Unmarked")
+        else:
+            # We should only allow marking hidden tiles
+            if self.grid[index] == TileEnum.seen:
+                game.context.spm.output("There is no point in marking already-known tiles")
+            else:
+                self.marked_tiles.add(index)
+                game.context.spm.output("Marked")
 
 
 class TileEnum(Enum):
