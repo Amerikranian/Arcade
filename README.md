@@ -14,6 +14,8 @@ If you are planning to contribute, then change the last line to install `require
 ```
 $pip install -r requirements-dev.txt
 ```
+## Building
+We use [Nuitka](https://pypi.org/project/Nuitka/) for compilation. As of now, only windows is supported, though other operating systems shouldn't be much of a hastle. Execute `build_windows.bat` from the main repository as you would any batch script and you should have a working distribution with no necessity for copying anything by hand
 ## What is left?
 - Adding some semblance of word complexity, perhaps based on Scrabble rules
 - Adding graceful cleanup upon application errors
@@ -40,6 +42,7 @@ from .base_game import Game
 
 
 class SampleGame(Game):
+
     def __init__(self, variation, difficulty):
         super().__init__(variation, difficulty)
         # Your code below
@@ -51,7 +54,7 @@ from .observable_game import ObservableGame, GameObserver
 
 class SampleGame(ObservableGame):
 
-def __init__(self, variation, difficulty):
+    def __init__(self, variation, difficulty):
         super().__init__(variation, difficulty)
         self.add_observer(YourObserver())
 
