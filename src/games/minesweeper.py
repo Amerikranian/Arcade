@@ -85,13 +85,13 @@ class MinesweeperObs(GridGameObserver):
         # A quick check
         if index in self.marked_tiles:
             return "Marked"
-        match self.grid[index]:
-            case TileEnum.seen:
-                return "Seen"
-            case TileEnum.empty | TileEnum.mined:
-                return "Hidden"
-            case _:
-                return "Unknown"
+        t = self.grid[index]
+        if t == TileEnum.seen:
+            return "Seen"
+        elif t == TileEnum.empty or t == TileEnum.mined:
+            return "Hidden"
+        else:
+            return "Unknown"
 
     def handle_grid_scroll(self, game, direction, *args, **kwargs):
         if not super().handle_grid_scroll(game, direction, *args, **kwargs):
@@ -120,17 +120,17 @@ class MinesweeperObs(GridGameObserver):
 
     def handle_reveal_pos(self, game, *args, **kwargs):
         index = self.flatten(self.position)
-        match self.grid[index]:
-            case TileEnum.seen:
-                game.context.spm.output("This tile has already been revealed")
-            case TileEnum.mined:
-                self.set_lose_state()
-            case TileEnum.empty:
-                self.grid[index] = TileEnum.seen
-                self.total_empty_tiles -= 1
-                if self.total_empty_tiles == 0:
-                    self.level_up()
-                game.context.spm.output(str(self.fetch_adjacent_empty_tile_count()))
+        t = self.grid[index]
+        if t == TileEnum.seen:
+            game.context.spm.output("This tile has already been revealed")
+        elif t == TileEnum.mined:
+            self.set_lose_state()
+        elif t == TileEnum.empty:
+            self.grid[index] = TileEnum.seen
+            self.total_empty_tiles -= 1
+            if self.total_empty_tiles == 0:
+                self.level_up()
+            game.context.spm.output(str(self.fetch_adjacent_empty_tile_count()))
 
     def handle_check_empty_tile_count(self, game, *args, **kwargs):
         game.context.spm.output("%s tiles remaining" % self.total_empty_tiles)
