@@ -20,9 +20,11 @@ class ScreenManager:
 
     def enqueue_screen(self, screen):
         self.screen_queue.append(screen)
+        logger.debug('Queued %s' % screen.__class__.__name__)
 
     def dequeue_screen(self, screen):
         self.screen_queue.remove(screen)
+        logger.debug('%s removed from queue' % screen.__class__.__name__)
 
     def is_screen_queue_empty(self):
         return len(self.screen_queue) == 0
@@ -34,11 +36,13 @@ class ScreenManager:
         screen.set_context(self.context)
         screen.on_create()
         self.screens.append(screen)
+        logger.debug('Pushed %s' % screen.__class__.__name__)
 
     def remove_screen(self, screen, use_queue=True):
         if screen in self.screens:
             self.screens.remove(screen)
         screen.on_destroy()
+        logger.debug('Popped %s' % screen.__class__.__name__)
 
         if use_queue and not self.is_screen_queue_empty():
             queued_screen = self.screen_queue.pop(0)

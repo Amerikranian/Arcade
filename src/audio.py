@@ -1,3 +1,4 @@
+import logging
 import synthizer
 
 from synthizer import (
@@ -12,8 +13,10 @@ from synthizer import (
     Source,
     ScalarPannedSource,
     Source3D,
+    SynthizerError
 )
 
+logger = logging.getLogger(__name__)
 
 class BufferCache:
     def __init__(self, file_manager, max_size=1024 ** 2 * 512):
@@ -28,7 +31,11 @@ class BufferCache:
 
     def get_buffer(self, path):
         if path not in self.buffers:
-            buffer = self.file_manager.get_buffer(path)
+            try:
+                buffer = self.file_manager.get_buffer(path)
+            except SynthizerError as syer:
+                logger.warn('Error while retrieving buffer, %s' % syer)
+                return
             self.paths.insert(0, path)
             self.buffers[path] = buffer
             self.current_size += self.get_size(buffer)
@@ -239,11 +246,10 @@ class Sound:
 
     def destroy(self):
         self.pause()
-        try:
-            self.generator.dec_ref()
-            self.source.dec_ref()
-        except:
-            pass
+
+        self.generator.dec_ref()
+        self.source.dec_ref()
+
         self.destroyed = True
 
     def restart(self):
