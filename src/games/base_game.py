@@ -1,4 +1,7 @@
 from os.path import join
+
+
+from audio import BlockingSound
 from constants import DEFAULT_SOUND_DIR, DEFAULT_SOUND_EXT
 from screen import Screen
 
@@ -32,6 +35,13 @@ class Game(Screen):
             ),
             **kwargs,
         )
+
+    def play_wait_from_dir(self, path, skippable=False, **kwargs):
+        sound = self.play_from_dir(path, **kwargs)
+        if sound:
+            self.screen_manager.add_screen(
+                BlockingSound(sound, skippable, kwargs.setdefault("callback", None))
+            )
 
     def stream(self, path, **kwargs):
         if ext is None:

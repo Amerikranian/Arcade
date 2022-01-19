@@ -13,10 +13,14 @@ from synthizer import (
     Source,
     ScalarPannedSource,
     Source3D,
-    SynthizerError
+    SynthizerError,
 )
 
+from screen import Screen
+
+
 logger = logging.getLogger(__name__)
+
 
 class BufferCache:
     def __init__(self, file_manager, max_size=1024 ** 2 * 512):
@@ -34,7 +38,7 @@ class BufferCache:
             try:
                 buffer = self.file_manager.get_buffer(path)
             except SynthizerError as syer:
-                logger.warn('Error while retrieving buffer, %s' % syer)
+                logger.warn("Error while retrieving buffer, %s" % syer)
                 return
             self.paths.insert(0, path)
             self.buffers[path] = buffer
@@ -254,3 +258,17 @@ class Sound:
 
     def restart(self):
         self.generator.position.value = 0.0
+
+
+class BlockingSound(Screen):
+    def __init__(self, sound, skippable=False, callback=None):
+        Screen.__init__(self)
+        self.sound = sound
+        self.sound.on_finish = self.on_finish
+        self.skippable = skippable
+        self.callback = callback
+
+    def on_finish(self):
+        if self.callback and callable(self.callback):
+            self.callback()
+        self.exit()

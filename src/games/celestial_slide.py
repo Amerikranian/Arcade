@@ -29,6 +29,7 @@ class CelestialSlideObs(GridGameObserver):
 
     def handle_start(self, game, *args, **kwargs):
         super().handle_start(game, *args, **kwargs)
+        game.context.sounds.set_position((self.dimensions[0] // 2, 0.5, 0))
         game.context.spm.output("Welcome!")
 
     def handle_grid_scroll(self, game, direction, *args, **kwargs):
@@ -39,6 +40,8 @@ class CelestialSlideObs(GridGameObserver):
             game.context.spm.output(self.grid[index])
         else:
             game.context.spm.output("Empty")
+        x, z = self.position
+        game.play_from_dir("grid_scroll", position=(x, 0, z))
         return True
 
     def handle_slide(self, game, direction, *args, **kwargs):
@@ -52,7 +55,8 @@ class CelestialSlideObs(GridGameObserver):
                 self.grid[position],
             )
             self.position = new_position
-            game.context.spm.output("*Sliding sound*")
+            x, z = self.position
+            game.play_from_dir("slide", position=(x, 0, z))
             return True
         return False
 
