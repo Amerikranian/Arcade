@@ -95,7 +95,7 @@ class AlphabeticalAssaultObs(GridGameObserver):
             game.context.spm.output(f"{self.grid[x][y]}; {x+1}, {y+1}")
         else:
             game.context.spm.output(f"Empty; {x+1}, {y+1}")
-        game.play_from_dir("scroll", position=(x, 0, y))
+        game.play_from_dir("grid_scroll", position=(x, 0, y))
         return True
 
     def handle_slide(self, game, direction, *args, **kwargs):

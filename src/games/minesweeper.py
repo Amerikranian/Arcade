@@ -50,6 +50,7 @@ class MinesweeperObs(GridGameObserver):
 
     def handle_start(self, game, *args, **kwargs):
         super().handle_start(game, *args, **kwargs)
+        self.game = game
         self.fill_grid()
         game.context.spm.output(self.fetch_tile_info(self.flatten(self.position)))
 
@@ -124,10 +125,11 @@ class MinesweeperObs(GridGameObserver):
         if t == TileEnum.seen:
             game.context.spm.output("This tile has already been revealed")
         elif t == TileEnum.mined:
-            self.set_lose_state()
+            self.game.play_wait_from_dir("explode", callback=self.set_lose_state)
         elif t == TileEnum.empty:
             self.grid[index] = TileEnum.seen
             self.total_empty_tiles -= 1
+            self.game.play_from_dir("reveal")
             if self.total_empty_tiles == 0:
                 self.level_up()
             game.context.spm.output(str(self.fetch_adjacent_empty_tile_count()))
@@ -146,13 +148,14 @@ class MinesweeperObs(GridGameObserver):
         dims_copy[random.randint(0, len(self.dimensions) - 1)] += random.randint(0, 2)
         self.dimensions = tuple(dims_copy)
         self.fill_grid()
+        self.game.play_wait_from_dir("next_level")
 
     def handle_skip_level(self, game, *args, **kwargs):
         # This is somewhat of an arbitrary number
         # Perhaps we'll make this percentage-based, too
-        if self.total_empty_tiles <= 7:
+        if self.total_empty_tiles <= 100:
+            game.context.spm.output("Level skipped. Genrating new level")
             self.level_up()
-            game.context.spm.output("Level skipped. New level generated")
             game.context.spm.output(
                 self.fetch_tile_info(self.flatten(self.position)), False
             )

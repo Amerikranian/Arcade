@@ -57,13 +57,16 @@ class MemoryObs(GridGameObserver):
             self.revealed_word = index
             self.revealed[index] = True
             game.context.spm.output(f"Revealed {self.grid[index]}")
+            game.play_from_dir("reveal1")
         else:
             game.context.spm.output(f"Revealed {self.grid[index]}")
+            game.play_from_dir("reveal2")
             self.revealed[index] = True
             if not self.grid[self.revealed_word] == self.grid[index]:
                 game.context.spm.output("No match", False)
                 self.revealed[self.revealed_word] = False
                 self.revealed[index] = False
+                game.play_wait_from_dir("incorrect")
             elif all([tile == True for tile in self.revealed]):
                 self.set_win_state()
             self.revealed_word = None

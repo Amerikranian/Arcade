@@ -45,15 +45,11 @@ class QuickTypeObs(TextGameObserver):
             if self.guess == self.word:
                 self.game_timer += self.time_reward
                 self.word = None
-                self.game.screen_manager.add_screen(
-                    BlockingSound(self.game.play_from_dir("correct"))
-                )
+                self.game.play_wait_from_dir("correct")
         else:
             self.game_timer -= 5
             self.word = None
-            self.game.screen_manager.add_screen(
-                BlockingSound(self.game.play_from_dir("incorrect"))
-            )
+            self.game.play_wait_from_dir("incorrect")
         return True
 
     def handle_frame_update(self, game, delta, **kwargs):
@@ -78,11 +74,3 @@ class QuickTypeObs(TextGameObserver):
             3, self.game.difficulty + 5
         )
         self.game.context.spm.output(self.word)
-
-
-class BlockingSound(Screen):
-    def __init__(self, sound, skippable=False):
-        Screen.__init__(self)
-        self.sound = sound
-        self.sound.on_finish = self.exit
-        self.skippable = skippable
