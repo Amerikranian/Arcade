@@ -148,12 +148,13 @@ class MinesweeperObs(GridGameObserver):
         dims_copy[random.randint(0, len(self.dimensions) - 1)] += random.randint(0, 2)
         self.dimensions = tuple(dims_copy)
         self.fill_grid()
+        self.marked_tiles.clear()
         self.game.play_wait_from_dir("next_level")
 
     def handle_skip_level(self, game, *args, **kwargs):
         # This is somewhat of an arbitrary number
         # Perhaps we'll make this percentage-based, too
-        if self.total_empty_tiles <= 100:
+        if self.total_empty_tiles <= 7:
             game.context.spm.output("Level skipped. Genrating new level")
             self.level_up()
             game.context.spm.output(
